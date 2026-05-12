@@ -247,6 +247,33 @@ code {
 
 .cta { margin-top: 56px; text-align: center; }
 
+.video-section { margin-top: 64px; }
+.video-frame {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+}
+.video-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.video-fallback {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--text-dim);
+  text-align: right;
+}
+.video-fallback a { color: var(--text); text-decoration-color: var(--accent); }
+.video-fallback a:hover { color: var(--accent-strong); }
+
 .site-footer {
   border-top: 1px solid var(--border);
   padding: 22px 32px;
