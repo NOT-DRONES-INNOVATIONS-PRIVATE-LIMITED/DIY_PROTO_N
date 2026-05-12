@@ -53,13 +53,42 @@
 
       <section id="flashing">
         <h2>03 &middot; Flashing firmware</h2>
-        <ol class="placeholder">
-          <li>TODO: Cable + driver requirements.</li>
-          <li>TODO: Tool to use (esptool / PlatformIO / Arduino IDE).</li>
-          <li>TODO: Command or button sequence to enter bootloader.</li>
-          <li>TODO: Verification step after flashing.</li>
-        </ol>
         <p>Firmware downloads are on the <a href="index.html">Downloads</a> page.</p>
+
+        <h3>OTA update procedure</h3>
+        <ol>
+          <li>Power on the drone (main board).</li>
+          <li>Power on the remote &mdash; the drone lights switch from blinking to solid, indicating the remote is connected.</li>
+          <li>On the remote, press <strong>S2</strong> (the left switch of the left D-pad). The remote light becomes solid.</li>
+          <li>
+            Press and hold the <strong>top switch of the left D-pad</strong>
+            until the drone enters <strong>OTA update mode</strong>.
+            <span class="placeholder-inline">[pictorial representation to be added]</span>
+          </li>
+          <li>From your PC, connect to the Wi-Fi network <code>DIY_NOT_xxxxxx</code> broadcast by the drone.</li>
+          <li>
+            Open
+            <a href="http://192.168.4.1/update/" target="_blank" rel="noopener">http://192.168.4.1/update/</a>
+            in your browser. You will see a button to upload a <code>.bin</code> file.
+          </li>
+          <li>Upload the desired firmware <code>.bin</code>.</li>
+          <li>Once the upload completes, power-cycle the board to boot the new firmware.</li>
+        </ol>
+
+        <h3>Testing builds via the on-board dashboard</h3>
+        <p>
+          If you flashed the <strong>barometer</strong>, <strong>IMU</strong>, or
+          <strong>motor-testing</strong> firmware, open
+          <a href="http://192.168.4.1/dashboard/" target="_blank" rel="noopener">http://192.168.4.1/dashboard/</a>
+          to view live telemetry, tweak parameters, and watch real-time graphs.
+        </p>
+
+        <h3>Flashing a different firmware</h3>
+        <p>
+          To switch to another build, reconnect the remote and repeat the
+          two-button sequence (<strong>S2</strong>, then hold the top switch of the
+          left D-pad) to re-enter OTA update mode, then upload the new <code>.bin</code>.
+        </p>
       </section>
 
       <section id="pairing">

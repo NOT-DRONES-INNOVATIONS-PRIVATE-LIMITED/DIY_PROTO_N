@@ -280,7 +280,22 @@ code {
   padding-bottom: 8px;
   border-bottom: 1px solid var(--border);
 }
+.doc h3 {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin: 28px 0 10px;
+}
 .doc p, .doc li { color: var(--text); }
+.doc ol, .doc ul { padding-left: 22px; margin: 8px 0 12px; }
+.doc li { margin-bottom: 6px; }
+.placeholder-inline {
+  display: inline;
+  color: var(--text-faint);
+  font-style: italic;
+}
 .doc .placeholder {
   color: var(--text-faint);
   background: var(--surface);
