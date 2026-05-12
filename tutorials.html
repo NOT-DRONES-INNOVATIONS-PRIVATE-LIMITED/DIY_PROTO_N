@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NOT Drones — Tutorials</title>
+  <title>NOT Drones — Manual &amp; Tutorials</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -20,39 +20,164 @@
 
   <main class="container">
     <section class="hero">
-      <div class="hero-eyebrow">DRONE OPERATION MANUAL</div>
-      <h1 class="hero-title">Instructions &amp; Tutorials</h1>
+      <div class="hero-eyebrow">NOT DIY · USER MANUAL</div>
+      <h1 class="hero-title">From Parts to Flight</h1>
       <p class="hero-sub">
-        Setup, calibration, control mapping, and troubleshooting for the NOT Drones platform.
+        Full assembly, flight, and troubleshooting guide for the NOT DIY drone.
+        Prefer offline? <a href="assets/manual-diy.pdf" download>Download the PDF manual</a>.
       </p>
     </section>
 
     <nav class="toc">
       <a href="#getting-started">01 / Getting started</a>
-      <a href="#hardware">02 / Hardware overview</a>
-      <a href="#flashing">03 / Flashing firmware</a>
-      <a href="#pairing">04 / Pairing the remote</a>
-      <a href="#calibration">05 / Calibration</a>
-      <a href="#controls">06 / Flight controls</a>
-      <a href="#simulator">07 / Using the simulator</a>
-      <a href="#troubleshooting">08 / Troubleshooting</a>
-      <a href="#safety">09 / Safety</a>
+      <a href="#safety">02 / Safety</a>
+      <a href="#in-the-box">03 / What's in the box</a>
+      <a href="#anatomy">04 / Drone anatomy</a>
+      <a href="#assembly">05 / Assembly</a>
+      <a href="#flying">06 / How to fly</a>
+      <a href="#flashing">07 / Flashing firmware</a>
+      <a href="#simulator">08 / Using the simulator</a>
+      <a href="#wiring">09 / Wiring &amp; protocols</a>
+      <a href="#troubleshooting">10 / Troubleshooting &amp; maintenance</a>
+      <a href="#specs">11 / Technical specifications</a>
+      <a href="#checklist">12 / Pre-flight checklist</a>
+      <a href="#support">13 / Support</a>
     </nav>
 
     <article class="doc">
 
       <section id="getting-started">
         <h2>01 &middot; Getting started</h2>
-        <p class="placeholder">TODO: Write a one-paragraph overview of the product and what's in the box.</p>
+        <p>
+          Welcome to the NOT DIY drone build. This manual walks you through
+          every step from unboxing to first flight: safety, parts, assembly,
+          flight controls, firmware updates, and troubleshooting. Work through
+          the sections in order on your first build.
+        </p>
+        <p>
+          A printable copy of this manual is available as a
+          <a href="assets/manual-diy.pdf" download>PDF download</a> (1.2&nbsp;MB).
+        </p>
       </section>
 
-      <section id="hardware">
-        <h2>02 &middot; Hardware overview</h2>
-        <p class="placeholder">TODO: Photo + labelled components of the drone and the remote. Include MCU (ESP32), motors, ESCs, receiver, battery type, and ports.</p>
+      <section id="safety">
+        <h2>02 &middot; Safety</h2>
+        <p>Read these before powering anything on.</p>
+        <ol>
+          <li>Power on and arm the drone only while it is on a flat surface.</li>
+          <li>Do not touch moving propellers.</li>
+          <li>Stay at a safe distance of more than 2&nbsp;m from the drone while flying.</li>
+          <li>Maintain Visual Line of Sight (VLOS) at all times as the drone pilot.</li>
+          <li>Flip the drone upside-down to initiate an emergency stop of the motors.</li>
+          <li>Use the disarm gesture (see <a href="#flying">How to fly</a>) for an emergency stop mid-flight. There is also a hardware emergency-stop button.</li>
+          <li>Test motors and electronics without propellers fitted.</li>
+          <li>Do not connect the battery before the drone is fully assembled and inspected.</li>
+        </ol>
+      </section>
+
+      <section id="in-the-box">
+        <h2>03 &middot; What's in the box</h2>
+        <p>Lay out all parts and confirm quantities before starting assembly.</p>
+        <figure>
+          <img src="assets/manual/checklist.png" alt="Pre-flight checklist illustration from the manual" loading="lazy" />
+        </figure>
+      </section>
+
+      <section id="anatomy">
+        <h2>04 &middot; Drone anatomy</h2>
+        <figure>
+          <img src="assets/manual/anatomy.png" alt="Labelled diagram of the drone: flight controller, brushless motor, propellers, propeller guards" loading="lazy" />
+          <figcaption>Flight controller, brushless motors, propellers, propeller guards.</figcaption>
+        </figure>
+      </section>
+
+      <section id="assembly">
+        <h2>05 &middot; Assembly</h2>
+        <p>23 steps. Each diagram shows the parts, quantities, and orientation for that step. Tighten screws progressively across opposite sides to avoid warping the frame.</p>
+        <div class="gallery">
+          <figure><img src="assets/manual/step-01.png" alt="Assembly step 1" loading="lazy" /><figcaption>Step 1</figcaption></figure>
+          <figure><img src="assets/manual/step-02.png" alt="Assembly step 2" loading="lazy" /><figcaption>Step 2</figcaption></figure>
+          <figure><img src="assets/manual/step-03.png" alt="Assembly step 3" loading="lazy" /><figcaption>Step 3</figcaption></figure>
+          <figure><img src="assets/manual/step-04.png" alt="Assembly step 4" loading="lazy" /><figcaption>Step 4</figcaption></figure>
+          <figure><img src="assets/manual/step-05.png" alt="Assembly step 5" loading="lazy" /><figcaption>Step 5</figcaption></figure>
+          <figure><img src="assets/manual/step-06.png" alt="Assembly step 6" loading="lazy" /><figcaption>Step 6</figcaption></figure>
+          <figure><img src="assets/manual/step-07.png" alt="Assembly step 7" loading="lazy" /><figcaption>Step 7 &mdash; place the arms diagonally; fit positions 2 and 5 first, then 6 and 1.</figcaption></figure>
+          <figure><img src="assets/manual/step-08.png" alt="Assembly step 8" loading="lazy" /><figcaption>Step 8 &mdash; place the built drone on top of the bottom section.</figcaption></figure>
+          <figure><img src="assets/manual/step-09.png" alt="Assembly step 9" loading="lazy" /><figcaption>Step 9</figcaption></figure>
+          <figure><img src="assets/manual/step-10.png" alt="Assembly step 10" loading="lazy" /><figcaption>Step 10 &mdash; mirror the bottom-section connections on the top of the drone.</figcaption></figure>
+          <figure><img src="assets/manual/step-11.png" alt="Assembly step 11" loading="lazy" /><figcaption>Step 11 &mdash; fit screws on all four sides.</figcaption></figure>
+          <figure><img src="assets/manual/step-12.png" alt="Assembly step 12" loading="lazy" /><figcaption>Step 12 &mdash; wire the four motors to the ESCs and PWM channels (PWM1&harr;motor1, etc.).</figcaption></figure>
+          <figure><img src="assets/manual/step-13.png" alt="Assembly step 13" loading="lazy" /><figcaption>Step 13 &mdash; place on all four sides, flip and screw from the back.</figcaption></figure>
+          <figure><img src="assets/manual/step-14.png" alt="Assembly step 14" loading="lazy" /><figcaption>Step 14</figcaption></figure>
+          <figure><img src="assets/manual/step-15.png" alt="Assembly step 15" loading="lazy" /><figcaption>Step 15</figcaption></figure>
+          <figure><img src="assets/manual/step-16.png" alt="Assembly step 16" loading="lazy" /><figcaption>Step 16 &mdash; route the wires from inside and attach to the PCB.</figcaption></figure>
+          <figure><img src="assets/manual/step-17.png" alt="Assembly step 17" loading="lazy" /><figcaption>Step 17</figcaption></figure>
+          <figure><img src="assets/manual/step-18.png" alt="Assembly step 18" loading="lazy" /><figcaption>Step 18</figcaption></figure>
+          <figure><img src="assets/manual/step-19.png" alt="Assembly step 19" loading="lazy" /><figcaption>Step 19</figcaption></figure>
+          <figure><img src="assets/manual/step-20.png" alt="Assembly step 20" loading="lazy" /><figcaption>Step 20</figcaption></figure>
+          <figure><img src="assets/manual/step-21.png" alt="Assembly step 21" loading="lazy" /><figcaption>Step 21</figcaption></figure>
+          <figure><img src="assets/manual/step-22.png" alt="Assembly step 22" loading="lazy" /><figcaption>Step 22</figcaption></figure>
+          <figure><img src="assets/manual/step-23.png" alt="Assembly step 23" loading="lazy" /><figcaption>Step 23</figcaption></figure>
+        </div>
+      </section>
+
+      <section id="flying">
+        <h2>06 &middot; How to fly</h2>
+
+        <h3>Power on and pairing</h3>
+        <ol>
+          <li><strong>Power on the drone</strong> by connecting its battery. The drone light starts flashing &mdash; it's waiting for the remote.</li>
+          <li><strong>Power on the remote</strong> by connecting its battery. The remote light also starts flashing.</li>
+          <li>The drone light becomes <strong>solid</strong> as soon as it links to the remote. The remote light staying solid means it is transmitting. A still-flashing remote light means standby (not transmitting yet).</li>
+        </ol>
+        <figure>
+          <img src="assets/manual/fly-1.png" alt="Power-on and pairing diagram" loading="lazy" />
+        </figure>
+
+        <h3>Calibration and arming</h3>
+        <ol start="4">
+          <li>Press the transmit button on the remote &mdash; its light becomes solid and it begins transmitting.</li>
+          <li>Place the drone on a <strong>flat surface</strong>.</li>
+          <li><strong>Calibrate</strong> the drone: both lights will flash for about 5 seconds during calibration, then go solid &mdash; ready to fly.</li>
+          <li><strong>Unlock the motors</strong> and gradually increase throttle on the left joystick to take off.</li>
+        </ol>
+        <figure>
+          <img src="assets/manual/fly-2.png" alt="Calibration and arming diagram" loading="lazy" />
+        </figure>
+
+        <h3>Altitude hold</h3>
+        <p>
+          Use <strong>S3</strong> to engage altitude hold once at the desired height
+          (release the throttle stick first). Use <strong>S1</strong> to disengage.
+          While altitude hold is on the drone maintains height automatically.
+        </p>
+        <figure>
+          <img src="assets/manual/fly-3.png" alt="Altitude hold control diagram" loading="lazy" />
+        </figure>
+
+        <h3>Trimming</h3>
+        <p>If the drone drifts on its own without control input, trim with these:</p>
+        <ul>
+          <li>Drifting left &rarr; right-trim</li>
+          <li>Drifting right &rarr; left-trim</li>
+          <li>Drifting forward &rarr; back-trim</li>
+          <li>Drifting backwards &rarr; forward-trim</li>
+        </ul>
+
+        <h3>Disarm and power off</h3>
+        <p>
+          <strong>Long-press</strong> the mode button: the remote emits one beep
+          and enters <strong>simulator mode</strong> (Bluetooth pairing for the
+          simulator app). Press and hold again: two beeps, and the remote returns
+          to drone mode.
+        </p>
+        <figure>
+          <img src="assets/manual/fly-4.png" alt="Disarm and mode-toggle diagram" loading="lazy" />
+        </figure>
       </section>
 
       <section id="flashing">
-        <h2>03 &middot; Flashing firmware</h2>
+        <h2>07 &middot; Flashing firmware</h2>
         <p>Firmware downloads are on the <a href="index.html">Downloads</a> page.</p>
 
         <h3>OTA update procedure</h3>
@@ -91,34 +216,135 @@
         </p>
       </section>
 
-      <section id="pairing">
-        <h2>04 &middot; Pairing the remote</h2>
-        <p class="placeholder">TODO: Bind procedure between the drone and the ESP32 remote.</p>
-      </section>
-
-      <section id="calibration">
-        <h2>05 &middot; Calibration</h2>
-        <p class="placeholder">TODO: ESC calibration, accelerometer/gyro level, stick endpoints.</p>
-      </section>
-
-      <section id="controls">
-        <h2>06 &middot; Flight controls</h2>
-        <p class="placeholder">TODO: Stick map, arming sequence, flight modes.</p>
-      </section>
-
       <section id="simulator">
-        <h2>07 &middot; Using the simulator</h2>
-        <p class="placeholder">TODO: Install steps for the simulator from the Downloads page; how to connect a transmitter for stick input.</p>
+        <h2>08 &middot; Using the simulator</h2>
+        <p>
+          The simulator runs on Windows 11 and connects to the remote over
+          Bluetooth. Software size is ~100&nbsp;MB. Download from the
+          <a href="index.html">Downloads</a> page.
+        </p>
+        <p>
+          To pair: long-press the mode button on the remote until you hear one
+          beep. The remote enters simulator mode and is now pairable via
+          Bluetooth from your PC. Long-press again to return to drone mode
+          (two beeps).
+        </p>
+      </section>
+
+      <section id="wiring">
+        <h2>09 &middot; Wiring &amp; protocols</h2>
+        <figure>
+          <img src="assets/manual/wiring.png" alt="Drone wiring diagram with motor, ESC, and PWM labels" loading="lazy" />
+        </figure>
+        <ul>
+          <li><strong>PWM signal:</strong> standard PWM, 50&nbsp;Hz &ndash; 400&nbsp;Hz.</li>
+          <li><strong>Communication:</strong> the MCU handles sensor data and outputs PWM to the ESCs.</li>
+          <li><strong>Flashing port:</strong> see the labelled point on the diagram for the USB/serial flashing connection.</li>
+        </ul>
       </section>
 
       <section id="troubleshooting">
-        <h2>08 &middot; Troubleshooting</h2>
-        <p class="placeholder">TODO: Common failure modes — no bind, motors spin one direction, drift, brown-out, low-RSSI.</p>
+        <h2>10 &middot; Troubleshooting &amp; maintenance</h2>
+        <figure>
+          <img src="assets/manual/troubleshoot.png" alt="Troubleshooting table from the manual" loading="lazy" />
+        </figure>
+
+        <h3>Common problems</h3>
+        <table class="spec-table">
+          <thead>
+            <tr><th>Problem</th><th>Possible cause</th><th>Solution</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Drone not taking off</td><td>Low battery / motor issue</td><td>Charge battery; check motors</td></tr>
+            <tr><td>Drone drifting</td><td>Improper calibration</td><td>Recalibrate sensors</td></tr>
+            <tr><td>One motor not spinning</td><td>ESC or wiring issue / low battery</td><td>Check connections; fully charge the battery before flying</td></tr>
+            <tr><td>Poor control range</td><td>Signal interference</td><td>Change location</td></tr>
+            <tr><td>Sudden shutdown</td><td>Battery voltage drop</td><td>Use a fully charged battery</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Maintenance</h3>
+        <ul>
+          <li>Do not operate in rain or dusty environments &mdash; dust may jam the motors and moisture may damage the electronics.</li>
+          <li>Keep the drone clean and dust-free.</li>
+          <li>Regularly inspect propellers for damage.</li>
+          <li>Do not overcharge or fully drain the battery.</li>
+          <li>Store the battery in a cool, dry place.</li>
+          <li>Check screws and frame for looseness.</li>
+          <li>Store the drone safely when not in use.</li>
+        </ul>
+
+        <h3>Tips</h3>
+        <ul>
+          <li>Always fly responsibly and follow local drone regulations.</li>
+          <li>Replace damaged propellers immediately.</li>
+        </ul>
       </section>
 
-      <section id="safety">
-        <h2>09 &middot; Safety</h2>
-        <p class="placeholder">TODO: Pre-flight checklist, prop-off testing, battery handling, where flight is permitted.</p>
+      <section id="specs">
+        <h2>11 &middot; Technical specifications</h2>
+        <div class="spec-grid">
+          <div class="spec-card">
+            <h3>Drone</h3>
+            <table class="spec-table">
+              <tr><td>Frame</td><td>Polycarbonate (lightweight &amp; durable)</td></tr>
+              <tr><td>Weight</td><td>180&nbsp;g</td></tr>
+              <tr><td>Battery</td><td>100&nbsp;mAh, 3.7&nbsp;V Li-Po</td></tr>
+              <tr><td>Flight time</td><td>8&ndash;10 minutes</td></tr>
+              <tr><td>Charging time</td><td>60&ndash;80 minutes</td></tr>
+              <tr><td>Range</td><td>150&nbsp;ft</td></tr>
+              <tr><td>Propellers</td><td>64&nbsp;mm ABS</td></tr>
+              <tr><td>Motors</td><td>BLDC, 3600&nbsp;kV</td></tr>
+              <tr><td>Flight controller MCU</td><td>ESP32</td></tr>
+              <tr><td>Sensors</td><td>Barometer + 6-axis IMU</td></tr>
+              <tr><td>Features</td><td>Altitude hold, trimming keys</td></tr>
+            </table>
+          </div>
+
+          <div class="spec-card">
+            <h3>Remote controller</h3>
+            <table class="spec-table">
+              <tr><td>MCU</td><td>ESP32</td></tr>
+              <tr><td>Wireless</td><td>Bluetooth + Wi-Fi</td></tr>
+              <tr><td>Battery</td><td>3.7&nbsp;V Li-Po</td></tr>
+              <tr><td>Joysticks</td><td>2</td></tr>
+              <tr><td>Buttons</td><td>8</td></tr>
+              <tr><td>Light</td><td>1</td></tr>
+              <tr><td>Buzzer</td><td>Yes</td></tr>
+            </table>
+          </div>
+
+          <div class="spec-card">
+            <h3>Simulator</h3>
+            <table class="spec-table">
+              <tr><td>Platform</td><td>Windows 11</td></tr>
+              <tr><td>Connection</td><td>Bluetooth</td></tr>
+              <tr><td>Software size</td><td>~100&nbsp;MB</td></tr>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="checklist">
+        <h2>12 &middot; Pre-flight checklist</h2>
+        <p>Before every flight, confirm:</p>
+        <ul class="checklist">
+          <li>Battery fully charged and properly connected.</li>
+          <li>Propellers securely tightened &mdash; no cracks or damage.</li>
+          <li>No electromagnetic interference near the drone.</li>
+          <li>Drone placed on a flat surface for calibration.</li>
+          <li>Gyroscope calibrated.</li>
+          <li>Flying area is clear &mdash; no obstacles or people.</li>
+          <li>Weather is safe &mdash; no strong wind or rain.</li>
+        </ul>
+      </section>
+
+      <section id="support">
+        <h2>13 &middot; Support</h2>
+        <p>
+          Questions or issues? Email
+          <a href="mailto:support@electrobotic.in">support@electrobotic.in</a>.
+        </p>
       </section>
 
     </article>

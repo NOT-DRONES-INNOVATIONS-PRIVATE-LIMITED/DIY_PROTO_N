@@ -296,6 +296,100 @@ code {
   color: var(--text-faint);
   font-style: italic;
 }
+
+.doc figure {
+  margin: 18px 0 22px;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.doc figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 3px;
+  background: #fff;
+}
+.doc figcaption {
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+  letter-spacing: 0.03em;
+}
+
+.doc .gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+  margin: 18px 0;
+}
+.doc .gallery figure { margin: 0; padding: 8px; }
+.doc .gallery figcaption { font-size: 11px; line-height: 1.4; }
+
+.spec-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+  margin-top: 14px;
+}
+.spec-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+}
+.spec-card h3 {
+  margin: 0 0 12px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.spec-table td, .spec-table th {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+.spec-table th {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.spec-table td:first-child { color: var(--text-dim); width: 42%; }
+.spec-card .spec-table td:first-child { color: var(--text-dim); }
+.doc > section > .spec-table { margin: 12px 0 20px; }
+
+.checklist {
+  list-style: none;
+  padding-left: 0;
+}
+.checklist li {
+  position: relative;
+  padding-left: 28px;
+  margin-bottom: 8px;
+}
+.checklist li::before {
+  content: "□";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 18px;
+  line-height: 1;
+}
 .doc .placeholder {
   color: var(--text-faint);
   background: var(--surface);
