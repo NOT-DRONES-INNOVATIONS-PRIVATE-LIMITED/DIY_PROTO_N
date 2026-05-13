@@ -271,17 +271,17 @@ code {
 
 .toc {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px 14px;
+  flex-direction: column;
+  gap: 6px;
   padding: 18px 22px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   margin-bottom: 48px;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 14px;
 }
-.toc a { color: var(--text-dim); text-decoration: none; }
+.toc a { color: var(--text-dim); text-decoration: none; display: block; }
 .toc a:hover { color: var(--accent-strong); }
 
 .doc section { margin-bottom: 44px; scroll-margin-top: 90px; }
