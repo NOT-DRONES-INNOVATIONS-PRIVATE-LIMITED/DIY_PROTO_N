@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <!--
   ===========================================================================
-  NOT DRONES — PRODUCT & TECHNOLOGY ROADMAP  (standalone internal page)
+  NOT DRONES — INTERACTIVE ROADMAP FISHBONE  (standalone internal page)
   ---------------------------------------------------------------------------
-  Hidden / unlinked page. Reachable only by typing:  <base-url>/internal/roadmap/
-  Excluded from search via <meta robots> below + /robots.txt.
+  Hidden / unlinked. Reachable only by typing:  <base-url>/internal/roadmap/
+  Excluded from search via <meta robots> + /robots.txt.
 
-  ✦ EDIT CONTENT IN ONE PLACE ✦
-  Almost everything you'll want to change — product specs, ORO 3.0 numbers,
-  development stages, and the whole TIMELINE — lives in the single
-  `ROADMAP` object inside the <script> at the BOTTOM of this file.
-  The visual diagrams are static markup; the data-driven bits (product
-  spec tables + timeline) render from that object. Search for "ROADMAP =".
+  Minimalist light theme. The whole page is ONE interactive fishbone:
+  a central time-spine with the milestones as bones. Click any node to
+  grow its internals; keep clicking to expand the diagram deeper.
+
+  ✦ EDIT EVERYTHING IN ONE PLACE ✦
+  All content lives in the `DATA` object in the <script> at the bottom.
+  Each milestone has `children`, and every child can have its own
+  `children` — nest as deep as you like and the fishbone grows to match.
   ===========================================================================
 -->
 <html lang="en">
@@ -19,786 +21,471 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>NOT Drones — Product & Technology Roadmap</title>
+  <title>NOT Drones — Roadmap</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" />
   <style>
-    /* =====================================================================
-       STANDALONE THEME — intentionally NOT sharing the main site's styling.
-       ===================================================================== */
     :root{
-      --bg:#080b12;
-      --bg-2:#0c1119;
-      --panel:#111826;
-      --panel-2:#0e1420;
-      --line:rgba(255,255,255,.09);
-      --line-strong:rgba(255,255,255,.16);
-      --ink:#eaf0f8;
-      --ink-dim:#9fb0c6;
-      --ink-faint:#657189;
-      --blue:#5b8cff;      /* in development */
-      --violet:#a479ff;    /* upcoming */
-      --teal:#25d9a4;      /* current / shipping */
-      --amber:#ffb454;     /* future opportunity */
-      --blue-dim:rgba(91,140,255,.16);
-      --violet-dim:rgba(164,121,255,.16);
-      --teal-dim:rgba(37,217,164,.16);
-      --amber-dim:rgba(255,180,84,.16);
-      --radius:14px;
+      --bg:#f6f8fb;
+      --ink:#161b22;
+      --ink-dim:#5a6472;
+      --ink-faint:#98a1b0;
+      --card:#ffffff;
+      --line:#e2e7ef;
+      --line-2:#cfd6e2;
+      --spine:#aab3c2;
+      --current:#0e9f6e;
+      --dev:#2563eb;
+      --upcoming:#7c3aed;
+      --future:#d97706;
       --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
-      --display:"Space Grotesk",system-ui,sans-serif;
-      --sans:"Inter",system-ui,-apple-system,sans-serif;
-      --maxw:1120px;
+      --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
     }
     *{box-sizing:border-box}
-    html,body{margin:0;padding:0}
+    html,body{margin:0;padding:0;height:100%}
     body{
-      background:
-        radial-gradient(1100px 700px at 15% -8%, rgba(91,140,255,.14), transparent 60%),
-        radial-gradient(900px 640px at 95% 4%, rgba(164,121,255,.12), transparent 55%),
-        radial-gradient(800px 700px at 50% 108%, rgba(37,217,164,.08), transparent 60%),
-        var(--bg);
-      color:var(--ink);
-      font-family:var(--sans);
-      font-size:16px;
-      line-height:1.6;
-      -webkit-font-smoothing:antialiased;
-      min-height:100vh;
-    }
-    a{color:var(--blue);text-decoration:none}
-    a:hover{color:#8fb0ff}
-    .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
-    .mono{font-family:var(--mono)}
-
-    /* ---------- top bar ---------- */
-    .topbar{
-      position:sticky;top:0;z-index:40;
-      backdrop-filter:blur(10px);
-      background:rgba(8,11,18,.72);
-      border-bottom:1px solid var(--line);
-    }
-    .topbar .row{display:flex;align-items:center;gap:16px;padding:14px 24px;max-width:var(--maxw);margin:0 auto}
-    .logo{display:flex;align-items:center;gap:11px;font-family:var(--display);font-weight:700;letter-spacing:.02em}
-    .logo .mark{
-      width:30px;height:30px;border-radius:8px;flex:none;
-      background:linear-gradient(135deg,var(--blue),var(--violet));
-      display:grid;place-items:center;color:#fff;font-size:15px;
-      box-shadow:0 0 22px rgba(91,140,255,.5);
-    }
-    .logo small{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--ink-faint);font-weight:500;text-transform:uppercase}
-    .topbar .spacer{flex:1}
-    .pill-conf{
-      font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;
-      color:var(--amber);background:var(--amber-dim);border:1px solid rgba(255,180,84,.3);
-      padding:4px 10px;border-radius:999px;white-space:nowrap;
-    }
-    .chipnav{display:flex;gap:8px;flex-wrap:wrap}
-    .chipnav a{
-      font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--ink-dim);
-      border:1px solid var(--line);padding:6px 11px;border-radius:999px;transition:.15s;
-    }
-    .chipnav a:hover{color:var(--ink);border-color:var(--line-strong);background:var(--panel)}
-
-    /* ---------- hero ---------- */
-    .hero{padding:74px 0 40px;text-align:center}
-    .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.24em;color:var(--blue);text-transform:uppercase;margin-bottom:18px}
-    .hero h1{
-      font-family:var(--display);font-weight:700;letter-spacing:-.02em;
-      font-size:clamp(34px,6vw,60px);line-height:1.05;margin:0 auto 20px;max-width:16ch;
-      background:linear-gradient(180deg,#fff,#b9c6db);-webkit-background-clip:text;background-clip:text;color:transparent;
-    }
-    .hero p{color:var(--ink-dim);font-size:clamp(16px,2.2vw,19px);max-width:62ch;margin:0 auto}
-    .thesis{
-      display:inline-flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:26px;
-    }
-    .thesis span{
-      font-family:var(--mono);font-size:12px;color:var(--ink);background:var(--panel);
-      border:1px solid var(--line);border-radius:999px;padding:8px 14px;
-    }
-    .thesis span b{color:var(--blue);font-weight:600}
-
-    /* ---------- section scaffolding ---------- */
-    section.block{padding:52px 0;border-top:1px solid var(--line);scroll-margin-top:80px}
-    .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:8px;flex-wrap:wrap}
-    .sec-num{font-family:var(--mono);font-size:13px;color:var(--ink-faint)}
-    .sec-head h2{font-family:var(--display);font-weight:700;font-size:clamp(24px,3.4vw,34px);letter-spacing:-.01em;margin:0}
-    .sec-sub{color:var(--ink-dim);max-width:70ch;margin:6px 0 30px;font-size:15.5px}
-
-    /* status system (shared) */
-    .s-current{--c:var(--teal);--cd:var(--teal-dim)}
-    .s-dev{--c:var(--blue);--cd:var(--blue-dim)}
-    .s-upcoming{--c:var(--violet);--cd:var(--violet-dim)}
-    .s-future{--c:var(--amber);--cd:var(--amber-dim)}
-    .status-pill{
-      font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;
-      color:var(--c);background:var(--cd);border:1px solid color-mix(in srgb,var(--c) 40%,transparent);
-      padding:4px 10px;border-radius:999px;white-space:nowrap;
+      background:var(--bg);color:var(--ink);font-family:var(--sans);
+      -webkit-font-smoothing:antialiased;display:flex;flex-direction:column;min-height:100vh;overflow:hidden;
     }
 
-    /* ---------- toolbar ---------- */
-    .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:26px}
-    .btn{
-      font-family:var(--mono);font-size:12px;color:var(--ink);background:var(--panel);
-      border:1px solid var(--line-strong);border-radius:9px;padding:9px 14px;cursor:pointer;transition:.15s;
+    /* ---- top bar ---- */
+    header{
+      display:flex;align-items:center;gap:16px;padding:14px 22px;background:#fff;
+      border-bottom:1px solid var(--line);z-index:5;flex:none;
     }
-    .btn:hover{border-color:var(--blue);color:#fff}
-    .legend{display:flex;gap:16px;flex-wrap:wrap;margin-left:auto}
-    .legend .li{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim)}
-    .legend .dot{width:9px;height:9px;border-radius:50%;background:var(--c)}
+    .brand{display:flex;align-items:center;gap:11px}
+    .mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;display:grid;place-items:center;font-size:14px;flex:none}
+    .brand b{font-weight:700;letter-spacing:.01em}
+    .brand small{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);font-weight:500}
+    .spacer{flex:1}
+    .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .btn{font-family:var(--mono);font-size:12px;color:var(--ink);background:#fff;border:1px solid var(--line-2);border-radius:8px;padding:8px 12px;cursor:pointer;transition:.15s}
+    .btn:hover{border-color:#2563eb;color:#2563eb}
+    .conf{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--future);background:#fff4e6;border:1px solid #ffdfb0;padding:5px 10px;border-radius:999px;white-space:nowrap}
 
-    /* ---------- cards / details ---------- */
-    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}
-    details.card,details.node-d{margin:0}
-    .card{
-      background:linear-gradient(180deg,var(--panel),var(--panel-2));
-      border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;transition:.18s;
+    /* ---- legend row ---- */
+    .subbar{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:9px 22px;background:#fff;border-bottom:1px solid var(--line);font-size:12px;color:var(--ink-dim);flex:none}
+    .legend{display:flex;gap:14px;flex-wrap:wrap}
+    .legend .li{display:inline-flex;align-items:center;gap:6px}
+    .legend .dot{width:9px;height:9px;border-radius:50%}
+    .hint{margin-left:auto;color:var(--ink-faint);font-family:var(--mono);font-size:11px}
+    .hint b{color:var(--ink-dim)}
+
+    /* ---- viewport / stage ---- */
+    .viewport{flex:1;overflow:auto;position:relative;cursor:grab}
+    .viewport.grabbing{cursor:grabbing}
+    .stage{position:relative;transform-origin:0 0}
+    .stage svg.bones{position:absolute;left:0;top:0;pointer-events:none;z-index:1}
+
+    .node{
+      position:absolute;left:0;top:0;z-index:2;
+      background:var(--card);border:1px solid var(--line);border-left:3px solid var(--c,var(--line-2));
+      border-radius:10px;padding:9px 12px;box-shadow:0 1px 2px rgba(20,30,50,.05),0 4px 14px rgba(20,30,50,.05);
+      width:max-content;max-width:184px;
+      transition:transform .4s cubic-bezier(.22,.61,.36,1),opacity .32s ease,box-shadow .15s;
+      opacity:1;user-select:none;
     }
-    .card[open],.card:hover{border-color:color-mix(in srgb,var(--c,var(--blue)) 55%,transparent)}
-    .card>summary{list-style:none;cursor:pointer;padding:20px;display:flex;flex-direction:column;gap:10px;user-select:none}
-    .card>summary::-webkit-details-marker{display:none}
-    .card .toprow{display:flex;align-items:center;gap:10px}
-    .card .tag{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-dim);border:1px solid var(--line);border-radius:6px;padding:3px 8px}
-    .card h3{font-family:var(--display);font-weight:600;font-size:20px;margin:2px 0 0}
-    .card .desc{color:var(--ink-dim);font-size:14px}
-    .card .more{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--c,var(--blue));margin-top:2px}
-    .chev{width:14px;height:14px;transition:transform .2s}
-    details[open]>summary .chev{transform:rotate(90deg)}
-    .card .body{padding:0 20px 20px;border-top:1px solid var(--line);margin-top:2px}
-    table.spec{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:12px}
-    table.spec td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
-    table.spec td:first-child{color:var(--ink-faint);width:42%;font-family:var(--mono);font-size:11.5px;letter-spacing:.02em}
-    table.spec td:last-child{color:var(--ink)}
-
-    /* ---------- ORO 3.0 hero block ---------- */
-    .oro{
-      background:
-        radial-gradient(600px 300px at 80% 0%, rgba(164,121,255,.14), transparent 60%),
-        linear-gradient(180deg,var(--panel),var(--panel-2));
-      border:1px solid color-mix(in srgb,var(--violet) 40%,transparent);
-      border-radius:20px;padding:30px;
-      box-shadow:0 30px 80px -40px rgba(164,121,255,.5);
+    .node.expandable{cursor:pointer}
+    .node.expandable:hover{box-shadow:0 2px 6px rgba(20,30,50,.09),0 10px 26px rgba(20,30,50,.12);border-color:var(--c,var(--line-2))}
+    .node .date{font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;color:var(--c,var(--ink-dim));font-weight:600;display:flex;align-items:center;gap:6px;margin-bottom:3px}
+    .node .fac{font-family:var(--mono);font-size:9.5px;letter-spacing:.02em;color:var(--ink-dim);background:#f1f4f9;border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+    .node .label{font-weight:600;font-size:13.5px;line-height:1.3}
+    .node.ms .label{font-size:14.5px}
+    .node .detail{font-size:11.5px;color:var(--ink-dim);margin-top:3px;line-height:1.35}
+    .node .exp{
+      display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-family:var(--mono);font-size:10.5px;font-weight:600;
+      color:var(--c,var(--ink-dim));background:color-mix(in srgb,var(--c,#888) 12%,#fff);
+      border:1px solid color-mix(in srgb,var(--c,#888) 30%,#fff);border-radius:999px;padding:2px 8px;
     }
-    .oro-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:30px;align-items:center}
-    @media(max-width:820px){.oro-grid{grid-template-columns:1fr}}
-    .oro h3{font-family:var(--display);font-size:30px;font-weight:700;margin:12px 0 6px}
-    .oro .lead{color:var(--ink-dim);font-size:15.5px;margin-bottom:20px}
-    .specstrip{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
-    .specstrip .s{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:11px;padding:12px}
-    .specstrip .s .k{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-faint);text-transform:uppercase}
-    .specstrip .s .v{font-family:var(--display);font-size:17px;font-weight:600;margin-top:3px}
+    .node.open .exp .sign::before{content:"–"}
+    .node .exp .sign::before{content:"+"}
+    .node .status-dot{width:8px;height:8px;border-radius:50%;background:var(--c);flex:none;margin-left:auto}
 
-    /* stylized drone SVG callouts */
-    .drone-wrap{position:relative}
-    .callouts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
-    .callouts .c{font-family:var(--mono);font-size:11px;padding:6px 11px;border-radius:999px;border:1px solid var(--line-strong);background:var(--panel);color:var(--ink)}
-    .callouts .c b{color:var(--violet)}
-
-    /* ---------- flow / arrows ---------- */
-    .flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap}
-    .stage{
-      flex:1 1 150px;min-width:150px;position:relative;
-      background:linear-gradient(180deg,var(--panel),var(--panel-2));
-      border:1px solid var(--line);border-radius:12px;padding:16px 14px;margin:0 16px 16px 0;
+    /* head of the fish */
+    .node.head{
+      border:none;border-radius:12px;color:#fff;padding:12px 16px;max-width:220px;
+      background:linear-gradient(135deg,#2563eb,#7c3aed);box-shadow:0 10px 30px -8px rgba(124,58,237,.5);
     }
-    .stage .n{font-family:var(--mono);font-size:11px;color:var(--blue)}
-    .stage h4{font-family:var(--display);font-size:15px;margin:8px 0 0;font-weight:600}
-    .stage::after{
-      content:"";position:absolute;right:-16px;top:50%;width:16px;height:2px;
-      background:linear-gradient(90deg,var(--blue),transparent);
-    }
-    .stage:last-child::after{display:none}
-    .flow.big .stage{flex-basis:170px}
+    .node.head .k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
+    .node.head .label{font-size:15px;color:#fff}
 
-    /* vertical spine (the complete story) */
-    .spine{max-width:720px;margin:0 auto}
-    .snode{
-      position:relative;background:linear-gradient(180deg,var(--panel),var(--panel-2));
-      border:1px solid var(--line);border-left:3px solid var(--c,var(--blue));
-      border-radius:12px;padding:16px 18px;margin:0 0 8px;
-    }
-    .snode .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--c,var(--blue))}
-    .snode h4{font-family:var(--display);font-size:18px;margin:4px 0 2px;font-weight:600}
-    .snode p{margin:0;color:var(--ink-dim);font-size:13.5px}
-    .down{display:grid;place-items:center;height:26px;color:var(--ink-faint)}
-    .down svg{width:18px;height:18px}
-    .split{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    @media(max-width:640px){.split{grid-template-columns:1fr}}
+    .s-current{--c:var(--current)} .s-dev{--c:var(--dev)} .s-upcoming{--c:var(--upcoming)} .s-future{--c:var(--future)}
 
-    /* parallel rail */
-    .parallel{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:10px}
-    @media(max-width:720px){.parallel{grid-template-columns:1fr}}
-    .rail{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px dashed var(--line-strong);border-radius:14px;padding:20px}
-    .rail h4{font-family:var(--display);margin:0 0 4px;font-size:17px}
-    .rail .k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--blue)}
-    .miniflow{display:flex;flex-direction:column;gap:8px;margin-top:14px}
-    .miniflow .m{display:flex;gap:10px;align-items:flex-start;font-size:13.5px}
-    .miniflow .m .idx{font-family:var(--mono);font-size:11px;color:var(--ink-faint);flex:none;width:20px}
+    footer{flex:none;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 22px;background:#fff;border-top:1px solid var(--line);font-size:12px;color:var(--ink-faint)}
+    footer .mono{font-family:var(--mono)}
 
-    /* platform reuse tree */
-    .tree{text-align:center}
-    .tree .root{
-      display:inline-block;background:linear-gradient(135deg,var(--blue),var(--violet));
-      color:#fff;font-family:var(--display);font-weight:600;font-size:16px;padding:14px 26px;border-radius:12px;
-      box-shadow:0 18px 50px -20px rgba(91,140,255,.7);
-    }
-    .tree .stem{width:2px;height:26px;background:var(--line-strong);margin:0 auto}
-    .branchrow{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;position:relative}
-    .branchrow::before{content:"";position:absolute;top:-13px;left:15%;right:15%;height:2px;background:var(--line-strong)}
-    .branch{position:relative;flex:1 1 200px;max-width:260px;padding-top:13px}
-    .branch::before{content:"";position:absolute;top:-13px;left:50%;width:2px;height:13px;background:var(--line-strong)}
-    .branch .b{
-      background:linear-gradient(180deg,var(--panel),var(--panel-2));
-      border:1px solid color-mix(in srgb,var(--c,var(--blue)) 45%,transparent);
-      border-radius:12px;padding:16px;text-align:left;
-    }
-    .branch .b h4{font-family:var(--display);font-size:16px;margin:8px 0 4px}
-    .branch .b p{margin:0;color:var(--ink-dim);font-size:13px}
-
-    .benefits{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:22px}
-    .benefit{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:11px;padding:14px}
-    .benefit .i{font-size:18px}
-    .benefit h5{font-family:var(--display);font-size:14px;margin:8px 0 2px;font-weight:600}
-    .benefit p{margin:0;font-size:12.5px;color:var(--ink-dim)}
-
-    /* market tags */
-    .markets{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-    .markets .mk{font-family:var(--mono);font-size:12px;padding:8px 14px;border-radius:10px;border:1px solid var(--line-strong);background:var(--panel)}
-
-    /* nested detail groups */
-    details.grp{border:1px solid var(--line);border-radius:12px;margin:10px 0;background:var(--panel-2)}
-    details.grp>summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:600;font-size:15px;user-select:none}
-    details.grp>summary::-webkit-details-marker{display:none}
-    details.grp .gbody{padding:2px 16px 16px 40px}
-    details.grp .gbody ul{margin:6px 0;padding-left:18px}
-    details.grp .gbody li{margin-bottom:6px;color:var(--ink-dim);font-size:14px}
-    details.grp .gbody li b{color:var(--ink)}
-    details.grp[open]{border-color:var(--line-strong)}
-    .subgrp{margin-left:2px}
-
-    /* timeline */
-    .tl{position:relative;margin-top:10px;padding-left:26px}
-    .tl::before{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:linear-gradient(var(--blue),var(--violet),var(--amber))}
-    .tl .row{position:relative;padding:0 0 22px 20px}
-    .tl .row::before{content:"";position:absolute;left:-26px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:3px solid var(--c,var(--blue));box-shadow:0 0 0 4px var(--cd,var(--blue-dim))}
-    .tl .date{font-family:var(--mono);font-size:12px;color:var(--c,var(--blue));letter-spacing:.04em}
-    .tl .row h4{font-family:var(--display);font-size:16px;margin:3px 0 3px}
-    .tl .row .meta{font-family:var(--mono);font-size:11px;color:var(--ink-faint);margin-bottom:4px}
-    .tl .row p{margin:0;color:var(--ink-dim);font-size:13.5px}
-
-    /* factory build-source badges + legend */
-    .fac{font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:var(--ink);background:rgba(255,255,255,.05);border:1px solid var(--line-strong);border-radius:6px;padding:2px 7px;white-space:nowrap;vertical-align:middle}
-    .factory-legend{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-8px 0 22px;font-size:12px;color:var(--ink-dim)}
-    .factory-legend .fl-title{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint)}
-    .factory-legend .fl-note{color:var(--ink-faint)}
-    .factory-legend .fl-note b{color:var(--ink-dim);font-weight:600}
-
-    .note{font-size:13px;color:var(--ink-faint);border-left:2px solid var(--amber);padding:6px 0 6px 12px;margin:14px 0}
-
-    footer{border-top:1px solid var(--line);padding:26px 0;color:var(--ink-faint);font-size:13px}
-    footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-
-    @media(max-width:600px){
-      .chipnav{display:none}
-      .stage{margin-right:0}
-      .stage::after{display:none}
+    @media(max-width:640px){
+      .hint{display:none}
+      header{padding:12px 16px}.subbar{padding:8px 16px}
     }
   </style>
 </head>
 <body>
-  <div class="topbar">
-    <div class="row">
-      <div class="logo">
-        <span class="mark">◆</span>
-        <span>NOT DRONES<small>Product &amp; Technology Roadmap</small></span>
-      </div>
-      <div class="spacer"></div>
-      <nav class="chipnav">
-        <a href="#today">Today</a>
-        <a href="#oro3">ORO 3.0</a>
-        <a href="#platform">Platform</a>
-        <a href="#sdk">SDK</a>
-        <a href="#intelligence">Intelligence</a>
-        <a href="#timeline">Timeline</a>
-      </nav>
-      <span class="pill-conf">Internal · Confidential</span>
+  <header>
+    <div class="brand">
+      <span class="mark">◆</span>
+      <span><b>NOT DRONES</b><small>Product Roadmap</small></span>
     </div>
-  </div>
-
-  <!-- ============================ HERO ============================ -->
-  <header class="hero wrap">
-    <div class="eyebrow">NOT Drones Innovations Pvt Ltd</div>
-    <h1>From a product to a platform</h1>
-    <p>
-      ORO 3.0 is not just our next drone — it is a new frame that becomes a reusable
-      platform. Build the platform once, then reuse it across SKUs, unlock software
-      through scale, and climb from hardware to intelligence.
-    </p>
-    <div class="thesis">
-      <span><b>Hardware</b> · a new frame</span>
-      <span><b>Reuse</b> · many SKUs</span>
-      <span><b>Software</b> · SDK &amp; apps</span>
-      <span><b>Intelligence</b> · vision &amp; autonomy</span>
+    <div class="spacer"></div>
+    <div class="controls">
+      <button class="btn" id="expandAll">Expand all</button>
+      <button class="btn" id="collapseAll">Collapse</button>
+      <button class="btn" id="fit">Reset view</button>
+      <span class="conf">Internal · Confidential</span>
     </div>
   </header>
 
-  <!-- ============================ THE STORY (exec summary) ============================ -->
-  <section class="block wrap" id="story">
-    <div class="sec-head"><span class="sec-num">00</span><h2>The whole story on one screen</h2></div>
-    <p class="sec-sub">Read top-to-bottom. Every step below expands into detail further down the page — an executive can stop here; an engineer can keep opening sections.</p>
-
-    <div class="spine">
-      <div class="snode s-current"><div class="lbl">Today</div><h4>Current drone products</h4><p>Camera drones shipping in market — the base we build on.</p></div>
-      <div class="down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
-
-      <div class="snode s-upcoming"><div class="lbl">Next SKU</div><h4>ORO 3.0 — new hardware platform</h4><p>3-axis gimbal · better sensor · 4K@30 · 30-min battery · Sony lens · new frame.</p></div>
-      <div class="down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
-
-      <div class="snode s-upcoming"><div class="lbl">Platform</div><h4>New common frame</h4><p>Develop the frame once — reuse it across products.</p></div>
-      <div class="down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
-      <div class="split">
-        <div class="snode s-upcoming"><div class="lbl">Reuse</div><h4>Single-axis variant</h4><p>Second SKU on the same frame.</p></div>
-        <div class="snode s-future"><div class="lbl">Opportunity</div><h4>Thermal drone</h4><p>Swap RGB → thermal. Defence / B2B.</p></div>
-      </div>
-      <div class="down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
-
-      <div class="snode s-upcoming"><div class="lbl">Scale</div><h4>100 × ORO 3.0 sold</h4><p>Volume milestone that unlocks the factory SDK.</p></div>
-      <div class="down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
-
-      <div class="snode s-future"><div class="lbl">Software access</div><h4>Factory SDK</h4><p>Video · telemetry · wireless commands.</p></div>
-      <div class="down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
-
-      <div class="snode s-future"><div class="lbl">Software products</div><h4>Custom apps &amp; laptop GCS</h4><p>Customer-specific software around the platform.</p></div>
-      <div class="down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
-
-      <div class="snode s-future"><div class="lbl">Intelligence</div><h4>Computer vision → autonomy</h4><p>Detection, tracking, analytics, mission automation.</p></div>
-
-      <div class="note">Running in parallel: an <b>in-house flight controller</b> and a <b>MIPI / Wi-Fi video board</b> — progressively giving us control over the complete stack.</div>
+  <div class="subbar">
+    <div class="legend">
+      <span class="li"><span class="dot" style="background:var(--current)"></span>Current</span>
+      <span class="li"><span class="dot" style="background:var(--dev)"></span>In development</span>
+      <span class="li"><span class="dot" style="background:var(--upcoming)"></span>Upcoming</span>
+      <span class="li"><span class="dot" style="background:var(--future)"></span>Future opportunity</span>
     </div>
-  </section>
+    <span style="color:var(--ink-faint)">Build source: <b style="color:var(--ink-dim)">LW · RJ · BJ · LG</b> factory partners · <b style="color:var(--ink-dim)">Alpha</b> common frame · <b style="color:var(--ink-dim)">In-house</b> NOT Drones</span>
+    <span class="hint">Click a node to <b>explore</b> → the fishbone grows. Drag to pan.</span>
+  </div>
 
-  <!-- ============================ 1. TODAY ============================ -->
-  <section class="block wrap" id="today">
-    <div class="sec-head"><span class="sec-num">01</span><h2>Where we are today</h2><span class="status-pill s-current" style="align-self:center">Current lineup</span></div>
-    <p class="sec-sub">What we have already built and shipped. First level stays simple — expand any product for full specifications.</p>
-    <div class="cards" id="currentProducts"><!-- rendered from ROADMAP.currentProducts --></div>
-  </section>
-
-  <!-- ============================ 2. ORO 3.0 ============================ -->
-  <section class="block wrap" id="oro3">
-    <div class="sec-head"><span class="sec-num">02</span><h2>The next SKU — ORO 3.0</h2><span class="status-pill s-upcoming" style="align-self:center">Upcoming</span></div>
-    <p class="sec-sub">Our next major hardware platform — a new frame designed to carry a 3-axis gimbal and a better imaging stack.</p>
-
-    <div class="oro s-upcoming">
-      <div class="oro-grid">
-        <div>
-          <span class="status-pill s-upcoming">New hardware platform</span>
-          <h3 id="oro3name">NOT ORO 3.0</h3>
-          <p class="lead" id="oro3lead"></p>
-          <div class="specstrip" id="oro3specs"><!-- rendered --></div>
-        </div>
-        <div class="drone-wrap">
-          <!-- stylized, bespoke SVG drone (no stock photos) with labeled major elements -->
-          <svg viewBox="0 0 360 300" width="100%" role="img" aria-label="ORO 3.0 major components">
-            <defs>
-              <linearGradient id="bodyG" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#2b3346"/><stop offset="1" stop-color="#141a26"/>
-              </linearGradient>
-              <linearGradient id="accentG" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#5b8cff"/><stop offset="1" stop-color="#a479ff"/>
-              </linearGradient>
-            </defs>
-            <!-- arms -->
-            <g stroke="url(#accentG)" stroke-width="7" stroke-linecap="round" opacity=".85">
-              <line x1="180" y1="150" x2="92" y2="86"/>
-              <line x1="180" y1="150" x2="268" y2="86"/>
-              <line x1="180" y1="150" x2="92" y2="214"/>
-              <line x1="180" y1="150" x2="268" y2="214"/>
-            </g>
-            <!-- motors + props -->
-            <g fill="#0e1420" stroke="#3a445a" stroke-width="2">
-              <circle cx="92" cy="86" r="16"/><circle cx="268" cy="86" r="16"/>
-              <circle cx="92" cy="214" r="16"/><circle cx="268" cy="214" r="16"/>
-            </g>
-            <g stroke="url(#accentG)" stroke-width="3" opacity=".7" fill="none">
-              <ellipse cx="92" cy="86" rx="34" ry="9"/><ellipse cx="268" cy="86" rx="34" ry="9"/>
-              <ellipse cx="92" cy="214" rx="34" ry="9"/><ellipse cx="268" cy="214" rx="34" ry="9"/>
-            </g>
-            <!-- body / frame -->
-            <rect x="140" y="112" width="80" height="76" rx="16" fill="url(#bodyG)" stroke="#4a5570" stroke-width="2"/>
-            <!-- electronics hint -->
-            <rect x="154" y="126" width="52" height="22" rx="4" fill="#0e1420" stroke="#5b8cff" stroke-width="1.5" opacity=".9"/>
-            <circle cx="163" cy="137" r="2.4" fill="#25d9a4"/><circle cx="173" cy="137" r="2.4" fill="#5b8cff"/>
-            <!-- battery -->
-            <rect x="150" y="156" width="60" height="20" rx="4" fill="#1a2233" stroke="#a479ff" stroke-width="1.5"/>
-            <!-- 3-axis gimbal + camera -->
-            <circle cx="180" cy="204" r="20" fill="#0e1420" stroke="url(#accentG)" stroke-width="3"/>
-            <circle cx="180" cy="204" r="10" fill="#05070c" stroke="#5b8cff" stroke-width="2"/>
-            <circle cx="180" cy="204" r="3.4" fill="#8fb0ff"/>
-          </svg>
-          <div class="callouts">
-            <span class="c"><b>◆</b> New frame</span>
-            <span class="c"><b>◆</b> 3-axis gimbal</span>
-            <span class="c"><b>◆</b> Camera / sensor</span>
-            <span class="c"><b>◆</b> Battery</span>
-            <span class="c"><b>◆</b> Electronics</span>
-          </div>
-        </div>
-      </div>
-
-      <details class="grp" style="margin-top:22px">
-        <summary><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg> Components — what's inside the platform</summary>
-        <div class="gbody">
-          <ul>
-            <li><b>New frame</b> — larger airframe engineered for a 3-axis gimbal and heavier imaging payload.</li>
-            <li><b>3-axis gimbal</b> — full pitch / roll / yaw stabilization for cinematic-grade footage.</li>
-            <li><b>Improved camera / sensor</b> — better image sensor with a Sony lens, 4K @ 30 fps.</li>
-            <li><b>Battery</b> — sized for a 30-minute flight time.</li>
-            <li><b>Electronics</b> — flight controller, ESCs, radio and power system integrated into the new frame.</li>
-          </ul>
-        </div>
-      </details>
+  <div class="viewport" id="viewport">
+    <div class="stage" id="stage">
+      <svg class="bones" id="bones"></svg>
     </div>
-  </section>
-
-  <!-- ============================ 3. DEVELOPMENT EFFORT ============================ -->
-  <section class="block wrap" id="effort">
-    <div class="sec-head"><span class="sec-num">03</span><h2>What it takes to build ORO 3.0</h2></div>
-    <p class="sec-sub">A new frame is an engineering program, not a parts swap. Each stage below is real coordination across mechanical, electronics, optics and flight test.</p>
-    <div class="flow big">
-      <div class="stage"><div class="n">01</div><h4>New Frame</h4></div>
-      <div class="stage"><div class="n">02</div><h4>Mechanical Development</h4></div>
-      <div class="stage"><div class="n">03</div><h4>Gimbal Integration</h4></div>
-      <div class="stage"><div class="n">04</div><h4>Camera / Sensor Integration</h4></div>
-      <div class="stage"><div class="n">05</div><h4>Electronics Integration</h4></div>
-      <div class="stage"><div class="n">06</div><h4>Flight Testing</h4></div>
-      <div class="stage"><div class="n">07</div><h4>Validation</h4></div>
-      <div class="stage"><div class="n">08</div><h4>Production</h4></div>
-    </div>
-    <div class="note">This effort is the investment. The next section shows the return: the frame becomes reusable.</div>
-  </section>
-
-  <!-- ============================ 4. PLATFORM REUSE ============================ -->
-  <section class="block wrap" id="platform">
-    <div class="sec-head"><span class="sec-num">04</span><h2>The payoff — one platform, many SKUs</h2></div>
-    <p class="sec-sub">The new frame developed for ORO 3.0 becomes a common platform. Develop once, reuse across products.</p>
-
-    <div class="tree">
-      <div class="root">NEW COMMON FRAME</div>
-      <div class="stem"></div>
-      <div class="branchrow">
-        <div class="branch s-upcoming"><div class="b"><span class="status-pill s-upcoming">Upcoming</span><h4>ORO 3.0 — 3-axis gimbal</h4><p>The flagship configuration of the platform.</p></div></div>
-        <div class="branch s-upcoming"><div class="b"><span class="status-pill s-upcoming">Upcoming</span><h4>Single-axis variant</h4><p>Second SKU on the same frame — lighter, lower cost.</p></div></div>
-        <div class="branch s-future"><div class="b"><span class="status-pill s-future">Opportunity</span><h4>Thermal drone</h4><p>Same frame, thermal payload. See §05.</p></div></div>
-      </div>
-    </div>
-
-    <div class="benefits">
-      <div class="benefit"><div class="i">📦</div><h5>Common inventory</h5><p>One frame and shared parts across SKUs.</p></div>
-      <div class="benefit"><div class="i">🧩</div><h5>Shared components</h5><p>Reuse mechanicals, electronics and mounts.</p></div>
-      <div class="benefit"><div class="i">⚡</div><h5>Less incremental effort</h5><p>New SKUs skip most ground-up development.</p></div>
-      <div class="benefit"><div class="i">🚀</div><h5>Faster future SKUs</h5><p>Time-to-market drops for every variant.</p></div>
-      <div class="benefit"><div class="i">🏭</div><h5>Easier manufacturing</h5><p>One line, one process, fewer unknowns.</p></div>
-      <div class="benefit"><div class="i">🔧</div><h5>Easier service</h5><p>Common spares simplify maintenance.</p></div>
-    </div>
-
-    <details class="grp" style="margin-top:20px">
-      <summary><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg> What exactly is reused?</summary>
-      <div class="gbody">
-        <ul>
-          <li><b>Airframe &amp; structure</b> — the new frame itself.</li>
-          <li><b>Power &amp; electronics</b> — battery bay, wiring, flight electronics.</li>
-          <li><b>Motors, ESCs &amp; propulsion</b> — shared propulsion set.</li>
-          <li><b>Mounting interfaces</b> — the gimbal/payload mount is the main variable between SKUs.</li>
-        </ul>
-      </div>
-    </details>
-  </section>
-
-  <!-- ============================ 5. THERMAL ============================ -->
-  <section class="block wrap" id="thermal">
-    <div class="sec-head"><span class="sec-num">05</span><h2>Thermal drone opportunity</h2><span class="status-pill s-future" style="align-self:center">Future opportunity</span></div>
-    <p class="sec-sub">The same platform can be adapted into a thermal drone by changing the camera payload — not by developing a new drone from scratch.</p>
-    <div class="flow">
-      <div class="stage s-future"><div class="n">Frame</div><h4>Common New Frame</h4></div>
-      <div class="stage s-future"><div class="n">Swap</div><h4>Replace RGB Camera</h4></div>
-      <div class="stage s-future"><div class="n">Payload</div><h4>Thermal Camera</h4></div>
-      <div class="stage s-future"><div class="n">Result</div><h4>Thermal Drone</h4></div>
-    </div>
-    <div class="markets">
-      <span class="mk">🛡️ Army / Defence</span>
-      <span class="mk">🏭 B2B / Industrial</span>
-    </div>
-    <div class="note">Presented as a future opportunity. No claims are made about military contracts, deployments or orders.</div>
-  </section>
-
-  <!-- ============================ 6. SCALE → SDK ============================ -->
-  <section class="block wrap" id="sdk">
-    <div class="sec-head"><span class="sec-num">06</span><h2>Scale unlocks software — the factory SDK</h2><span class="status-pill s-future" style="align-self:center">Planned milestone</span></div>
-    <p class="sec-sub">After roughly 100 units of the 3-axis drone are sold, the factory is expected to provide an SDK. This is the turn from <b>using</b> the platform to <b>building software</b> on it.</p>
-    <div class="flow big">
-      <div class="stage s-upcoming"><div class="n">Milestone</div><h4>100 Units Sold</h4></div>
-      <div class="stage s-future"><div class="n">Unlock</div><h4>Factory SDK</h4></div>
-      <div class="stage s-future"><div class="n">Access</div><h4>Drone Data &amp; Control</h4></div>
-    </div>
-    <details class="grp">
-      <summary><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg> What the SDK is expected to expose</summary>
-      <div class="gbody">
-        <ul>
-          <li><b>Video transmission</b> — access to the live video stream.</li>
-          <li><b>Telemetry</b> — position, attitude, battery and status data.</li>
-          <li><b>Wireless commands</b> — send commands to the drone programmatically.</li>
-        </ul>
-      </div>
-    </details>
-    <div class="note">Planned / future milestone, dependent on reaching the volume threshold with the factory.</div>
-  </section>
-
-  <!-- ============================ 7. SOFTWARE ============================ -->
-  <section class="block wrap" id="software">
-    <div class="sec-head"><span class="sec-num">07</span><h2>Custom software around the platform</h2><span class="status-pill s-future" style="align-self:center">Future</span></div>
-    <p class="sec-sub">With the SDK we can move beyond selling hardware and build customized software solutions.</p>
-    <div class="flow">
-      <div class="stage s-future"><div class="n">SDK</div><h4>Factory SDK</h4></div>
-      <div class="stage s-future"><div class="n">Apps</div><h4>Custom Mobile / Desktop Apps</h4></div>
-      <div class="stage s-future"><div class="n">GCS</div><h4>Custom Laptop GCS</h4></div>
-      <div class="stage s-future"><div class="n">Fit</div><h4>Customer-Specific Functionality</h4></div>
-    </div>
-    <div class="parallel" style="margin-top:20px">
-      <details class="grp subgrp">
-        <summary><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg> Target customers</summary>
-        <div class="gbody"><ul><li>Army</li><li>Navy</li><li>Industrial customers</li><li>B2B customers</li></ul></div>
-      </details>
-      <details class="grp subgrp">
-        <summary><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg> Functionality we can build</summary>
-        <div class="gbody"><ul>
-          <li>Custom surveillance workflows</li>
-          <li>Telemetry dashboards</li>
-          <li>Live video feeds</li>
-          <li>Mission control</li>
-          <li>Drone commands</li>
-          <li>Customer-specific &amp; industry workflows</li>
-        </ul></div>
-      </details>
-    </div>
-  </section>
-
-  <!-- ============================ 8. INTELLIGENCE ============================ -->
-  <section class="block wrap" id="intelligence">
-    <div class="sec-head"><span class="sec-num">08</span><h2>Computer vision &amp; autonomy</h2><span class="status-pill s-future" style="align-self:center">Future</span></div>
-    <p class="sec-sub">Access to the video stream and telemetry opens the door to advanced computer vision and, eventually, autonomous functionality.</p>
-    <div class="flow big">
-      <div class="stage s-future"><div class="n">Input</div><h4>Video + Telemetry</h4></div>
-      <div class="stage s-future"><div class="n">Process</div><h4>Remote Processing</h4></div>
-      <div class="stage s-future"><div class="n">See</div><h4>Computer Vision</h4></div>
-      <div class="stage s-future"><div class="n">Analyse</div><h4>Advanced Analytics</h4></div>
-      <div class="stage s-future"><div class="n">Act</div><h4>Autonomous Capabilities</h4></div>
-    </div>
-    <details class="grp">
-      <summary><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg> Example capabilities (future, not yet built)</summary>
-      <div class="gbody"><ul>
-        <li>Object detection &amp; tracking</li>
-        <li>Surveillance analytics</li>
-        <li>Inspection</li>
-        <li>Automated alerts</li>
-        <li>Mission automation</li>
-      </ul></div>
-    </details>
-    <div class="note">Clearly future capabilities — presented as a direction, not as something that exists today.</div>
-  </section>
-
-  <!-- ============================ 9 + 10. PARALLEL TRACKS ============================ -->
-  <section class="block wrap" id="inhouse">
-    <div class="sec-head"><span class="sec-num">09</span><h2>In parallel — owning the stack</h2><span class="status-pill s-dev" style="align-self:center">In development</span></div>
-    <p class="sec-sub">Alongside the product roadmap, two in-house hardware efforts progressively give us control over the complete drone technology stack.</p>
-    <div class="parallel">
-      <div class="rail s-dev">
-        <div class="k">Parallel track A</div>
-        <h4>In-house flight controller</h4>
-        <div class="miniflow">
-          <div class="m"><span class="idx">→</span><span><b>In-house FC development</b></span></div>
-          <div class="m"><span class="idx">→</span><span>Increasing control over hardware</span></div>
-          <div class="m"><span class="idx">→</span><span>Feature parity with off-the-shelf</span></div>
-          <div class="m"><span class="idx">→</span><span>Future platform independence</span></div>
-          <div class="m"><span class="idx">→</span><span>Advanced autonomy</span></div>
-        </div>
-      </div>
-      <div class="rail s-dev">
-        <div class="k">Parallel track B</div>
-        <h4>MIPI / Wi-Fi video board</h4>
-        <div class="miniflow">
-          <div class="m"><span class="idx">→</span><span><b>Camera</b> over MIPI</span></div>
-          <div class="m"><span class="idx">→</span><span>Wi-Fi / video board</span></div>
-          <div class="m"><span class="idx">→</span><span>Image + video capture</span></div>
-          <div class="m"><span class="idx">→</span><span>Long-range wireless transmission</span></div>
-        </div>
-      </div>
-    </div>
-    <div class="note">Together these move us toward greater control over the complete platform — reducing dependence on external hardware and SDKs over time.</div>
-  </section>
-
-  <!-- ============================ 13. TIMELINE ============================ -->
-  <section class="block wrap" id="timeline">
-    <div class="sec-head"><span class="sec-num">10</span><h2>Timeline</h2></div>
-    <p class="sec-sub">Month-by-month build plan across factory partners and in-house programs. Everything here is edited in one place (<span class="mono">ROADMAP.timeline</span>).</p>
-    <div class="factory-legend">
-      <span class="fl-title">Build source</span>
-      <span class="fac" title="Chinese factory partner">LW</span>
-      <span class="fac" title="Chinese factory partner">RJ</span>
-      <span class="fac" title="Chinese factory partner">BJ</span>
-      <span class="fac" title="Chinese factory partner">LG</span>
-      <span class="fl-note">= Chinese factory partners &nbsp;·&nbsp; <b>Alpha</b> = new common frame &nbsp;·&nbsp; <b>In-house</b> = NOT Drones</span>
-    </div>
-    <div class="toolbar">
-      <button class="btn" id="expandAll">Expand all</button>
-      <button class="btn" id="collapseAll">Collapse all</button>
-      <div class="legend">
-        <span class="li s-current"><span class="dot"></span>Current</span>
-        <span class="li s-dev"><span class="dot"></span>In development</span>
-        <span class="li s-upcoming"><span class="dot"></span>Upcoming</span>
-        <span class="li s-future"><span class="dot"></span>Future opportunity</span>
-      </div>
-    </div>
-    <div class="tl" id="timeline-list"><!-- rendered from ROADMAP.timeline --></div>
-  </section>
+  </div>
 
   <footer>
-    <div class="wrap">
-      <span>NOT Drones Innovations Pvt Ltd</span>
-      <span class="mono">internal roadmap · not for distribution</span>
-    </div>
+    <span>NOT Drones Innovations Pvt Ltd</span>
+    <span class="mono">internal roadmap · not for distribution</span>
   </footer>
 
   <!-- =====================================================================
-       ★★★  SINGLE SOURCE OF TRUTH — EDIT PRODUCT SPECS & TIMELINE HERE  ★★★
+       ★★★  SINGLE SOURCE OF TRUTH — EDIT THE ROADMAP HERE  ★★★
+       Each milestone: { date, factory, status, label, children:[…] }
+       Each child:     { label, detail?, children?:[…] }  ← nest freely
+       status ∈ "current" | "dev" | "upcoming" | "future"
        ===================================================================== -->
   <script>
-    const ROADMAP = {
-      /* ---- 1. CURRENT PRODUCTS (from notdrones.com) ------------------- */
-      currentProducts: [
-        {
-          name: "NOT ORO 4K",
-          tag: "Flagship camera drone",
-          status: "current",
-          summary: "4K camera drone with 2-axis gimbal, GPS smart-flight, sub-250 g.",
-          specs: {
-            "Camera": "4K Ultra HD · 110° FOV",
-            "Resolution": "3840 × 2160",
-            "Gimbal": "2-axis stabilized (90° tilt)",
-            "Flight time": "20–25 min single · up to 60–65 min (triple battery)",
-            "Range": "1000 m transmission · 1 km live view (screen remote)",
-            "Weight": "249 g (no license for recreational use)",
-            "Battery": "7.4 V Li-Po · 1600 mAh",
-            "Charging": "120–180 min (Type-C)",
-            "Storage": "microSD 32–128 GB",
-            "Smart flight": "GPS Follow-Me, Waypoint, RTH, gesture, object tracking",
-            "Build": "Foldable · Made in India"
-          }
-        },
-        {
-          name: "NOT ORO 4K — Military Grade",
-          tag: "Tactical variant",
-          status: "current",
-          summary: "Tactical configuration of the ORO 4K platform with multi-constellation GNSS.",
-          specs: {
-            "Camera": "4K Ultra HD · 2-axis gimbal",
-            "Resolution": "3840 × 2160",
-            "Flight time": "20–25 min single · up to 60–65 min (triple battery)",
-            "Range": "1000 m control · Wi-Fi live 200 m · 5G-capable link",
-            "Weight": "249 g",
-            "Battery": "7.4 V · 1600 mAh",
-            "Navigation": "GPS + GLONASS + BDS · compass calibration · multi-mode RTH",
-            "Flight modes": "GPS Follow-Me, Waypoint, Gesture",
-            "Build": "Foldable · Made in India"
-          }
-        },
-        {
-          name: "Nabhyan Pro GPS",
-          tag: "Entry GPS drone",
-          status: "current",
-          summary: "Lightweight 160 g brushless GPS trainer with a screen remote.",
-          specs: {
-            "Camera": "1080p HD",
-            "Flight time": "20 min (dual battery pack)",
-            "Motors": "Brushless — quieter, better wind resistance",
-            "Weight": "160 g (nano category)",
-            "GPS": "GPS + altitude hold · optical stability",
-            "Return-to-home": "Smart RTH · Low-battery RTH · Failsafe RTH",
-            "Battery": "Modular 4 × 3.7 V 1200 mAh",
-            "Remote": "Smart screen remote with on-screen telemetry",
-            "Warranty": "6 months + 365-day service"
-          }
-        }
+    const DATA = {
+      milestones: [
+        { date:"Aug 2026", factory:"LW", status:"current", label:"ORO — 2-Axis 4K", children:[
+          { label:"Factory", detail:"Built at LW", children:[ {label:"LW", detail:"Chinese factory partner"} ] },
+          { label:"Camera", children:[ {label:"4K sensor"}, {label:"2-axis gimbal", detail:"Tilt stabilization"} ] },
+          { label:"Airframe", children:[ {label:"Foldable"}, {label:"Sub-250 g"} ] },
+          { label:"Smart flight", children:[ {label:"GPS Follow-Me"}, {label:"Waypoint"}, {label:"Return-to-home"} ] }
+        ]},
+        { date:"Sep 2026", factory:"RJ", status:"upcoming", label:"Nabhyan GPS — 1080p 30fps", children:[
+          { label:"Factory", children:[ {label:"RJ", detail:"Chinese factory partner"} ] },
+          { label:"Camera", children:[ {label:"1080p HD"}, {label:"30 fps"} ] },
+          { label:"GPS", children:[ {label:"Position hold"}, {label:"Return-to-home"} ] },
+          { label:"Airframe", children:[ {label:"160 g"}, {label:"Brushless motors"} ] }
+        ]},
+        { date:"Oct 2026", factory:"BJ", status:"upcoming", label:"ORO — 3-Axis 4K · Sony lens", children:[
+          { label:"Factory", children:[ {label:"BJ", detail:"Chinese factory partner"} ] },
+          { label:"New frame", detail:"Becomes the common platform", children:[
+            {label:"Mechanical development"}, {label:"Reusable across SKUs"} ] },
+          { label:"3-axis gimbal", children:[ {label:"Pitch"}, {label:"Roll"}, {label:"Yaw"} ] },
+          { label:"Camera", children:[ {label:"4K @ 30 fps"}, {label:"Sony lens"}, {label:"Improved sensor"} ] },
+          { label:"Electronics", children:[ {label:"Flight controller"}, {label:"ESCs"}, {label:"Power system"} ] },
+          { label:"Battery", children:[ {label:"30-min flight"} ] }
+        ]},
+        { date:"Nov 2026", factory:"Alpha", status:"upcoming", label:"ORO — Single-Axis 4K", children:[
+          { label:"Frame", detail:"Reuses the Alpha common frame", children:[ {label:"Alpha frame", detail:"Same as ORO 3-axis"} ] },
+          { label:"Gimbal", children:[ {label:"Single-axis"} ] },
+          { label:"Camera", children:[ {label:"4K"}, {label:"30 fps"} ] },
+          { label:"Why it's fast", children:[ {label:"Shared BOM"}, {label:"Shared components"}, {label:"Less new development"} ] }
+        ]},
+        { date:"Dec 2026", factory:"In-house", status:"dev", label:"Carbon-fibre DIY drone", children:[
+          { label:"Airframe", children:[ {label:"Carbon fibre"} ] },
+          { label:"BOM", children:[ {label:"Nabhyan GPS BOM"} ] },
+          { label:"Electronics", children:[ {label:"In-house"} ] },
+          { label:"Flight controller", detail:"In-house FC", children:[
+            {label:"Control over hardware"}, {label:"Feature parity"}, {label:"Platform independence"} ] },
+          { label:"Camera", children:[ {label:"None (this build)"} ] }
+        ]},
+        { date:"Jan 2027", factory:"RJ · SDK", status:"future", label:"Alpha + Thermal + custom apps", children:[
+          { label:"Frame", children:[ {label:"Alpha common frame"} ] },
+          { label:"Payload", children:[ {label:"Thermal camera"} ] },
+          { label:"Factory SDK", detail:"Unlocked via RJ", children:[
+            {label:"Video transmission"}, {label:"Telemetry"}, {label:"Wireless commands"} ] },
+          { label:"Software", children:[
+            {label:"Custom laptop app"}, {label:"Mobile app"},
+            {label:"For specific industries"}, {label:"For army"} ] }
+        ]},
+        { date:"Feb 2027", factory:"RJ · SDK", status:"future", label:"Alpha + Single-Axis 4K + custom apps", children:[
+          { label:"Frame", children:[ {label:"Alpha common frame"} ] },
+          { label:"Payload", children:[ {label:"Single-axis 4K camera"} ] },
+          { label:"Factory SDK", children:[ {label:"Video"}, {label:"Telemetry"}, {label:"Commands"} ] },
+          { label:"Software", children:[
+            {label:"Custom laptop app"}, {label:"Mobile app"},
+            {label:"For specific industries"}, {label:"For army"} ] }
+        ]},
+        { date:"Mar 2027", factory:"LW", status:"future", label:"Nabhyan GPS + own flight controller", children:[
+          { label:"Flight controller", children:[ {label:"In-house FC"} ] },
+          { label:"Camera", children:[ {label:"LW camera"} ] },
+          { label:"Application", children:[ {label:"LW application"} ] },
+          { label:"Outcome", children:[ {label:"More control of the stack"} ] }
+        ]},
+        { date:"Apr 2027", factory:"Alpha", status:"future", label:"Alpha kamikaze configuration", children:[
+          { label:"Frame", children:[ {label:"Alpha common frame"} ] },
+          { label:"Payload", children:[ {label:"Thermal camera"}, {label:"Explosive payload"} ] },
+          { label:"Role", children:[ {label:"Loitering munition (kamikaze)"} ] },
+          { label:"Application", children:[ {label:"Defence"} ] }
+        ]}
       ],
-
-      /* ---- 2. ORO 3.0 — the star SKU ---------------------------------- */
-      oro3: {
-        name: "NOT ORO 3.0",
-        lead: "The next major hardware platform — a new frame built around a 3-axis gimbal and an upgraded imaging stack.",
-        headlineSpecs: {
-          "Gimbal": "3-axis",
-          "Video": "4K @ 30 fps",
-          "Sensor": "Upgraded",
-          "Optics": "Sony lens",
-          "Battery": "30-min flight"
-        }
-      },
-
-      /* ---- 13. TIMELINE — edit dates / phases / status / factory here -- *
-       * status  ∈ "current" | "dev" | "upcoming" | "future"               *
-       * factory ∈ "LW" | "RJ" | "BJ" | "LG" (Chinese partners)            *
-       *           | "Alpha" (new common frame) | "In-house" | ""          */
-      timeline: [
-        { date: "Aug 2026", phase: "Current product",     factory: "LW",       product: "ORO — 2-Axis 4K",                 status: "current",  description: "2-axis 4K camera drone." },
-        { date: "Sep 2026", phase: "Product",             factory: "RJ",       product: "Nabhyan GPS — 1080p 30fps",       status: "upcoming", description: "1080p GPS drone at 30 fps." },
-        { date: "Oct 2026", phase: "Next SKU · ORO 3.0",  factory: "BJ",       product: "ORO — 3-Axis 4K, Sony lens",      status: "upcoming", description: "New frame with 3-axis gimbal, 4K and Sony lens." },
-        { date: "Nov 2026", phase: "Platform reuse",      factory: "Alpha",    product: "ORO — Single-Axis 4K",            status: "upcoming", description: "Single-axis 4K camera at 30 fps on the 3-axis (Alpha) frame." },
-        { date: "Dec 2026", phase: "In-house platform",   factory: "In-house", product: "Carbon-fibre DIY drone",          status: "dev",      description: "Carbon-fibre DIY airframe using the Nabhyan GPS BOM, electronics and the in-house flight controller. No camera." },
-        { date: "Jan 2027", phase: "Defence software",    factory: "RJ · SDK", product: "Alpha + Thermal + custom apps",   status: "future",   description: "Alpha frame with thermal camera, plus a custom laptop app and mobile app for specific industries and army." },
-        { date: "Feb 2027", phase: "Defence software",    factory: "RJ · SDK", product: "Alpha + Single-Axis 4K + custom apps", status: "future", description: "Alpha frame with single-axis 4K camera, plus a custom laptop app and mobile app for specific industries and army." },
-        { date: "Mar 2027", phase: "In-house integration",factory: "LW",       product: "Nabhyan GPS + own flight controller", status: "future", description: "Nabhyan GPS running the in-house flight controller, with LW camera and LW application." },
-        { date: "Apr 2027", phase: "Defence",             factory: "Alpha",    product: "Alpha kamikaze configuration",    status: "future",   description: "Alpha frame with thermal camera and explosive payload — kamikaze / loitering-munition configuration." }
-      ]
+      head: { k:"Where this leads", label:"Platform → Software → Autonomy" }
     };
 
-    /* ---------------------- render helpers ---------------------------- */
-    const STATUS_CLASS = { current:"s-current", dev:"s-dev", upcoming:"s-upcoming", future:"s-future" };
+    /* ============================ ENGINE ============================ */
     const STATUS_LABEL = { current:"Current", dev:"In development", upcoming:"Upcoming", future:"Future opportunity" };
-    const esc = s => String(s).replace(/[&<>]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;" }[c]));
-    const chevSVG = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>';
+    const LEAF_W = 210, GAPX = 40, LV = 120, HPAD = 90, VPAD = 70, HEAD_GAP = 90;
 
-    // 1. current products
-    document.getElementById("currentProducts").innerHTML = ROADMAP.currentProducts.map(p => {
-      const rows = Object.entries(p.specs).map(([k,v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join("");
-      return `<details class="card ${STATUS_CLASS[p.status]}">
-        <summary>
-          <div class="toprow"><span class="tag">${esc(p.tag)}</span><span class="status-pill ${STATUS_CLASS[p.status]}">${STATUS_LABEL[p.status]}</span></div>
-          <h3>${esc(p.name)}</h3>
-          <div class="desc">${esc(p.summary)}</div>
-          <div class="more">${chevSVG} Full specifications</div>
-        </summary>
-        <div class="body"><table class="spec">${rows}</table></div>
-      </details>`;
-    }).join("");
+    const stage = document.getElementById('stage');
+    const bones = document.getElementById('bones');
+    const viewport = document.getElementById('viewport');
+    const expanded = new Set();
+    const els = new Map();          // id -> element
+    let prevVisible = new Set();
 
-    // 2. ORO 3.0 headline specs
-    document.getElementById("oro3name").textContent = ROADMAP.oro3.name;
-    document.getElementById("oro3lead").textContent = ROADMAP.oro3.lead;
-    document.getElementById("oro3specs").innerHTML = Object.entries(ROADMAP.oro3.headlineSpecs)
-      .map(([k,v]) => `<div class="s"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div></div>`).join("");
+    // assign ids + parent refs
+    (function assign(nodes, parent, path){
+      nodes.forEach((n,i)=>{
+        n.id = path + i;
+        n.parent = parent;
+        n.status = n.status || (parent ? parent.status : "future");
+        if(n.children) assign(n.children, n, n.id + ".");
+      });
+    })(DATA.milestones, null, "m");
 
-    // 13. timeline
-    document.getElementById("timeline-list").innerHTML = ROADMAP.timeline.map(t => `
-      <div class="row ${STATUS_CLASS[t.status]}">
-        <div class="date">${esc(t.date)}</div>
-        <h4>${esc(t.product)}${t.factory ? ` <span class="fac">${esc(t.factory)}</span>` : ""}</h4>
-        <div class="meta">${esc(t.phase)} · ${STATUS_LABEL[t.status]}</div>
-        <p>${esc(t.description)}</p>
-      </div>`).join("");
+    function isVisible(n){
+      // milestone (no parent) always visible; child visible if parent visible & expanded
+      let p = n.parent;
+      let node = n;
+      while(p){
+        if(!expanded.has(p.id)) return false;
+        node = p; p = p.parent;
+      }
+      return true;
+    }
 
-    // expand / collapse all
-    document.getElementById("expandAll").onclick  = () => document.querySelectorAll("details").forEach(d => d.open = true);
-    document.getElementById("collapseAll").onclick = () => document.querySelectorAll("details").forEach(d => d.open = false);
+    // ---- layout (tidy-tree mapped onto a fishbone) ----
+    function layoutNode(n, side, depth, xStart){
+      n.side = side; n.depth = depth;
+      const kids = (expanded.has(n.id) && n.children) ? n.children : [];
+      if(!kids.length){ n.x = xStart + LEAF_W/2; return LEAF_W; }
+      let c = xStart, first=null, last=null;
+      kids.forEach(k=>{ const w = layoutNode(k, side, depth+1, c); c += w; if(first===null)first=k.x; last=k.x; });
+      n.x = (first+last)/2;
+      return c - xStart;
+    }
+
+    function layout(){
+      let cursor = 0;
+      DATA.milestones.forEach((m,i)=>{
+        m.side = (i%2===0) ? -1 : 1;
+        const w = layoutNode(m, m.side, 1, cursor);
+        cursor += Math.max(w, LEAF_W) + GAPX;
+      });
+      const contentW = Math.max(cursor - GAPX, LEAF_W);
+
+      // vertical extents from visible nodes
+      let topD = 1, botD = 1;
+      const visit = n => { if(!isVisible(n)) return;
+        if(n.side<0) topD = Math.max(topD, n.depth); else botD = Math.max(botD, n.depth);
+        if(n.children) n.children.forEach(visit); };
+      DATA.milestones.forEach(visit);
+
+      const NODEH = 78;
+      const topExtent = topD*LV, botExtent = botD*LV;
+      const worldH = topExtent + botExtent + 2*VPAD + NODEH;
+      const spineY = topExtent + VPAD + NODEH/2;
+      const headW = 240;
+      const worldW = HPAD*2 + contentW + HEAD_GAP + headW;
+
+      // world coords onto every visible node
+      const place = n => { if(!isVisible(n)) return;
+        n.wx = HPAD + n.x;
+        n.wy = spineY + n.side * n.depth * LV;
+        if(n.children) n.children.forEach(place); };
+      DATA.milestones.forEach(place);
+
+      DATA.head.wx = HPAD + contentW + HEAD_GAP;
+      DATA.head.wy = spineY;
+
+      return { worldW, worldH, spineY, contentW };
+    }
+
+    // ---- node element factory ----
+    function makeEl(n){
+      const div = document.createElement('div');
+      div.className = 'node s-' + n.status + (n.children ? ' expandable':'');
+      if(n.date){
+        div.classList.add('ms');
+        div.innerHTML =
+          `<div class="date">${n.date}${n.factory?` <span class="fac">${n.factory}</span>`:''}<span class="status-dot"></span></div>`+
+          `<div class="label">${n.label}</div>`+
+          (n.children?`<div class="exp"><span class="sign"></span> ${n.children.length}</div>`:'');
+      } else {
+        div.innerHTML =
+          `<div class="label">${n.label}</div>`+
+          (n.detail?`<div class="detail">${n.detail}</div>`:'')+
+          (n.children?`<div class="exp"><span class="sign"></span> ${n.children.length}</div>`:'');
+      }
+      if(n.children){
+        div.addEventListener('click', e=>{ e.stopPropagation(); toggle(n); });
+      }
+      return div;
+    }
+
+    function makeHead(){
+      const div = document.createElement('div');
+      div.className = 'node head';
+      div.innerHTML = `<div class="k">${DATA.head.k}</div><div class="label">${DATA.head.label}</div>`;
+      return div;
+    }
+
+    function setPos(el, wx, wy, opacity){
+      el.style.transform = `translate(${wx}px, ${wy}px) translate(-50%, -50%)`;
+      if(opacity!==undefined) el.style.opacity = opacity;
+    }
+
+    // ---- render ----
+    let animTimer = null;
+    function render(animate=true){
+      const dim = layout();
+      stage.style.width = dim.worldW + 'px';
+      stage.style.height = dim.worldH + 'px';
+      bones.setAttribute('width', dim.worldW);
+      bones.setAttribute('height', dim.worldH);
+      bones.setAttribute('viewBox', `0 0 ${dim.worldW} ${dim.worldH}`);
+
+      // gather visible nodes
+      const vis = [];
+      const gather = n => { if(!isVisible(n)) return; vis.push(n); if(n.children) n.children.forEach(gather); };
+      DATA.milestones.forEach(gather);
+
+      const visIds = new Set(vis.map(n=>n.id));
+
+      // head element
+      if(!els.has('__head__')){ const h = makeHead(); els.set('__head__', h); stage.appendChild(h);
+        setPos(h, DATA.head.wx, DATA.head.wy, 0); h.offsetWidth; }
+      setPos(els.get('__head__'), DATA.head.wx, DATA.head.wy, 1);
+
+      // create / update nodes
+      vis.forEach(n=>{
+        let el = els.get(n.id);
+        if(!el){
+          el = makeEl(n); els.set(n.id, el); stage.appendChild(el);
+          // emerge from parent's current position
+          const origin = n.parent ? n.parent : {wx:n.wx, wy:dim.spineY};
+          setPos(el, origin.wx, origin.wy, 0);
+          el.offsetWidth; // reflow so the transition runs
+        }
+        el.classList.toggle('open', expanded.has(n.id));
+        setPos(el, n.wx, n.wy, 1);
+      });
+
+      // remove nodes no longer visible (animate back toward parent)
+      prevVisible.forEach(id=>{
+        if(!visIds.has(id) && els.has(id)){
+          const el = els.get(id);
+          const n = findById(id);
+          const origin = n && n.parent ? n.parent : {wx:dim.spineY, wy:dim.spineY};
+          setPos(el, origin.wx || n.wx, origin.wy || n.wy, 0);
+          setTimeout(()=>{ el.remove(); }, 380);
+          els.delete(id);
+        }
+      });
+      prevVisible = visIds;
+
+      // animate the bones alongside the node transition
+      if(animTimer) cancelAnimationFrame(animTimer);
+      const t0 = performance.now();
+      const tick = ()=>{ drawBones(dim); if(performance.now()-t0 < 460) animTimer = requestAnimationFrame(tick); else drawBones(dim); };
+      tick();
+    }
+
+    function findById(id){
+      let found = null;
+      const visit = n => { if(n.id===id) found = n; else if(n.children) n.children.forEach(visit); };
+      DATA.milestones.forEach(visit);
+      return found;
+    }
+
+    // ---- draw the spine + bones from live element positions ----
+    function drawBones(dim){
+      const sb = stage.getBoundingClientRect();
+      const sc = viewport.__scale || 1;
+      const center = el => { const r = el.getBoundingClientRect();
+        return { x:(r.left + r.width/2 - sb.left)/sc, y:(r.top + r.height/2 - sb.top)/sc }; };
+
+      let svg = `<line x1="${HPAD-30}" y1="${dim.spineY}" x2="${DATA.head.wx}" y2="${dim.spineY}" stroke="var(--spine)" stroke-width="3" stroke-linecap="round"/>`;
+      // tail marker + time direction
+      svg += `<circle cx="${HPAD-30}" cy="${dim.spineY}" r="4" fill="var(--spine)"/>`;
+      svg += `<text x="${HPAD-30}" y="${dim.spineY-14}" font-family="var(--mono)" font-size="11" fill="#98a1b0">TIME →</text>`;
+
+      const line = (a,b,color,w)=>`<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${color}" stroke-width="${w}" stroke-linecap="round"/>`;
+
+      const drawFor = n => {
+        if(!isVisible(n)) return;
+        const el = els.get(n.id); if(!el) return;
+        const cN = center(el);
+        if(!n.parent){
+          // milestone bone: from spine attach point up/down to the node
+          const attach = { x:cN.x, y:dim.spineY };
+          svg += line(attach, cN, 'var(--line-2)', 2.5);
+          svg += `<circle cx="${cN.x}" cy="${dim.spineY}" r="3.5" fill="var(--spine)"/>`;
+        }
+        if(n.children && expanded.has(n.id)){
+          n.children.forEach(k=>{ if(!isVisible(k)) return; const el2 = els.get(k.id); if(!el2) return;
+            svg += line(cN, center(el2), 'var(--line-2)', 2); });
+        }
+        if(n.children) n.children.forEach(drawFor);
+      };
+      DATA.milestones.forEach(drawFor);
+
+      // spine into the head
+      const headEl = els.get('__head__');
+      if(headEl){ /* head sits on spine end; short connector already covered by spine */ }
+      bones.innerHTML = svg;
+    }
+
+    function toggle(n){
+      if(expanded.has(n.id)) collapseRec(n); else expanded.add(n.id);
+      render();
+    }
+    function collapseRec(n){
+      expanded.delete(n.id);
+      if(n.children) n.children.forEach(collapseRec);
+    }
+
+    // ---- controls ----
+    document.getElementById('expandAll').onclick = ()=>{
+      const all = n => { if(n.children){ expanded.add(n.id); n.children.forEach(all); } };
+      DATA.milestones.forEach(all); render();
+    };
+    document.getElementById('collapseAll').onclick = ()=>{ expanded.clear(); render(); fitView(); };
+    document.getElementById('fit').onclick = ()=> fitView();
+
+    // ---- pan by drag ----
+    (function(){
+      let down=false,sx,sy,l,t;
+      viewport.addEventListener('mousedown',e=>{ if(e.target.closest('.node')) return; down=true; viewport.classList.add('grabbing'); sx=e.clientX; sy=e.clientY; l=viewport.scrollLeft; t=viewport.scrollTop; });
+      window.addEventListener('mousemove',e=>{ if(!down) return; viewport.scrollLeft=l-(e.clientX-sx); viewport.scrollTop=t-(e.clientY-sy); });
+      window.addEventListener('mouseup',()=>{ down=false; viewport.classList.remove('grabbing'); });
+    })();
+
+    function fitView(){
+      // center the spine vertically and scroll to the start
+      viewport.scrollTop = Math.max(0, (stage.offsetHeight - viewport.clientHeight)/2);
+      viewport.scrollLeft = 0;
+    }
+
+    window.addEventListener('resize', ()=>drawBones(layout()));
+
+    // ---- init: collapsed, but pre-open the ORO 3-axis milestone one level ----
+    expanded.add('m2');
+    render();
+    requestAnimationFrame(()=>{ fitView(); setTimeout(()=>drawBones(layout()), 60); });
   </script>
 </body>
 </html>
