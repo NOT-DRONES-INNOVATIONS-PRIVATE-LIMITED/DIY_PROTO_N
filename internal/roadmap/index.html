@@ -286,6 +286,13 @@
     .tl .row .meta{font-family:var(--mono);font-size:11px;color:var(--ink-faint);margin-bottom:4px}
     .tl .row p{margin:0;color:var(--ink-dim);font-size:13.5px}
 
+    /* factory build-source badges + legend */
+    .fac{font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:var(--ink);background:rgba(255,255,255,.05);border:1px solid var(--line-strong);border-radius:6px;padding:2px 7px;white-space:nowrap;vertical-align:middle}
+    .factory-legend{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-8px 0 22px;font-size:12px;color:var(--ink-dim)}
+    .factory-legend .fl-title{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint)}
+    .factory-legend .fl-note{color:var(--ink-faint)}
+    .factory-legend .fl-note b{color:var(--ink-dim);font-weight:600}
+
     .note{font-size:13px;color:var(--ink-faint);border-left:2px solid var(--amber);padding:6px 0 6px 12px;margin:14px 0}
 
     footer{border-top:1px solid var(--line);padding:26px 0;color:var(--ink-faint);font-size:13px}
@@ -633,7 +640,15 @@
   <!-- ============================ 13. TIMELINE ============================ -->
   <section class="block wrap" id="timeline">
     <div class="sec-head"><span class="sec-num">10</span><h2>Timeline</h2></div>
-    <p class="sec-sub">Progression from current products to future technology. Dates are editable placeholders — change them in one place (<span class="mono">ROADMAP.timeline</span>).</p>
+    <p class="sec-sub">Month-by-month build plan across factory partners and in-house programs. Everything here is edited in one place (<span class="mono">ROADMAP.timeline</span>).</p>
+    <div class="factory-legend">
+      <span class="fl-title">Build source</span>
+      <span class="fac" title="Chinese factory partner">LW</span>
+      <span class="fac" title="Chinese factory partner">RJ</span>
+      <span class="fac" title="Chinese factory partner">BJ</span>
+      <span class="fac" title="Chinese factory partner">LG</span>
+      <span class="fl-note">= Chinese factory partners &nbsp;·&nbsp; <b>Alpha</b> = new common frame &nbsp;·&nbsp; <b>In-house</b> = NOT Drones</span>
+    </div>
     <div class="toolbar">
       <button class="btn" id="expandAll">Expand all</button>
       <button class="btn" id="collapseAll">Collapse all</button>
@@ -729,19 +744,20 @@
         }
       },
 
-      /* ---- 13. TIMELINE — edit dates / phases / status here ------------ *
-       * status ∈ "current" | "dev" | "upcoming" | "future"                *
-       * (dates are placeholders — change freely)                          */
+      /* ---- 13. TIMELINE — edit dates / phases / status / factory here -- *
+       * status  ∈ "current" | "dev" | "upcoming" | "future"               *
+       * factory ∈ "LW" | "RJ" | "BJ" | "LG" (Chinese partners)            *
+       *           | "Alpha" (new common frame) | "In-house" | ""          */
       timeline: [
-        { date: "Today",       phase: "Current lineup",    product: "NOT ORO 4K · Nabhyan Pro GPS", status: "current",  description: "Camera drones shipping and in market." },
-        { date: "2026 · Q4",   phase: "Next SKU",          product: "ORO 3.0",                      status: "upcoming", description: "New frame, 3-axis gimbal, 4K@30, Sony lens, 30-min battery." },
-        { date: "2027 · H1",   phase: "Platform reuse",    product: "Single-axis variant",          status: "upcoming", description: "Second SKU on the common frame." },
-        { date: "2027 · H2",   phase: "Opportunity",       product: "Thermal drone",                status: "future",   description: "RGB → thermal payload swap. Defence / B2B opportunity." },
-        { date: "2027",        phase: "Scale",             product: "100 × ORO 3.0 sold",           status: "upcoming", description: "Volume milestone that unlocks the factory SDK." },
-        { date: "2028 · H1",   phase: "Software access",   product: "Factory SDK",                  status: "future",   description: "Video, telemetry and wireless command access." },
-        { date: "2028",        phase: "Software products", product: "Custom apps + laptop GCS",     status: "future",   description: "Customer-specific software around the platform." },
-        { date: "2028+",       phase: "Intelligence",      product: "Computer vision → autonomy",   status: "future",   description: "Detection, tracking, analytics, mission automation." },
-        { date: "Parallel",    phase: "In-house tech",     product: "Flight controller + MIPI/Wi-Fi board", status: "dev", description: "Progressive control over the complete stack." }
+        { date: "Aug 2026", phase: "Current product",     factory: "LW",       product: "ORO — 2-Axis 4K",                 status: "current",  description: "2-axis 4K camera drone." },
+        { date: "Sep 2026", phase: "Product",             factory: "RJ",       product: "Nabhyan GPS — 1080p 30fps",       status: "upcoming", description: "1080p GPS drone at 30 fps." },
+        { date: "Oct 2026", phase: "Next SKU · ORO 3.0",  factory: "BJ",       product: "ORO — 3-Axis 4K, Sony lens",      status: "upcoming", description: "New frame with 3-axis gimbal, 4K and Sony lens." },
+        { date: "Nov 2026", phase: "Platform reuse",      factory: "Alpha",    product: "ORO — Single-Axis 4K",            status: "upcoming", description: "Single-axis 4K camera at 30 fps on the 3-axis (Alpha) frame." },
+        { date: "Dec 2026", phase: "In-house platform",   factory: "In-house", product: "Carbon-fibre DIY drone",          status: "dev",      description: "Carbon-fibre DIY airframe using the Nabhyan GPS BOM, electronics and the in-house flight controller. No camera." },
+        { date: "Jan 2027", phase: "Defence software",    factory: "RJ · SDK", product: "Alpha + Thermal + custom apps",   status: "future",   description: "Alpha frame with thermal camera, plus a custom laptop app and mobile app for specific industries and army." },
+        { date: "Feb 2027", phase: "Defence software",    factory: "RJ · SDK", product: "Alpha + Single-Axis 4K + custom apps", status: "future", description: "Alpha frame with single-axis 4K camera, plus a custom laptop app and mobile app for specific industries and army." },
+        { date: "Mar 2027", phase: "In-house integration",factory: "LW",       product: "Nabhyan GPS + own flight controller", status: "future", description: "Nabhyan GPS running the in-house flight controller, with LW camera and LW application." },
+        { date: "Apr 2027", phase: "Defence",             factory: "Alpha",    product: "Alpha kamikaze configuration",    status: "future",   description: "Alpha frame with thermal camera and explosive payload — kamikaze / loitering-munition configuration." }
       ]
     };
 
@@ -775,7 +791,7 @@
     document.getElementById("timeline-list").innerHTML = ROADMAP.timeline.map(t => `
       <div class="row ${STATUS_CLASS[t.status]}">
         <div class="date">${esc(t.date)}</div>
-        <h4>${esc(t.product)}</h4>
+        <h4>${esc(t.product)}${t.factory ? ` <span class="fac">${esc(t.factory)}</span>` : ""}</h4>
         <div class="meta">${esc(t.phase)} · ${STATUS_LABEL[t.status]}</div>
         <p>${esc(t.description)}</p>
       </div>`).join("");
