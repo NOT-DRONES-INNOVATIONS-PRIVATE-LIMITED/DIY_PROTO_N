@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <!--
   ===========================================================================
-  NOT DRONES — INTERACTIVE ROADMAP FISHBONE  (standalone internal page)
+  NOT DRONES - PRODUCT ROADMAP & LOCALIZATION TRACKER  (hidden internal page)
   ---------------------------------------------------------------------------
-  Hidden / unlinked. Reachable only by typing:  <base-url>/internal/roadmap/
+  Unlinked. Reachable only by typing:  <base-url>/internal/roadmap/
   Excluded from search via <meta robots> + /robots.txt.
 
-  Minimalist light theme. The whole page is ONE interactive fishbone:
-  a central time-spine with the milestones as bones. Click any node to
-  grow its internals; keep clicking to expand the diagram deeper.
+  Three views of the same DATA object:
+    1. Gantt      - product schedule + subsystem localization lanes
+    2. Fishbone   - expandable spec tree per SKU
+    3. Slides     - one presentation slide per SKU
 
   ✦ EDIT EVERYTHING IN ONE PLACE ✦
-  All content lives in the `DATA` object in the <script> at the bottom.
-  Each milestone has `children`, and every child can have its own
-  `children` — nest as deep as you like and the fishbone grows to match.
+  All content lives in the DATA / FACTORIES / LANES objects in the <script>
+  at the bottom. Specs, dates, factories, notes: change them there and every
+  view re-renders. Origin color coding derives from FACTORIES[x].origin.
+
+  Design tokens from /DESIGN.md (Vercel-inspired; see Project adaptations).
   ===========================================================================
 -->
 <html lang="en">
@@ -21,471 +24,786 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>NOT Drones — Roadmap</title>
+  <meta name="theme-color" content="#fafafa" />
+  <title>NOT Drones - Roadmap</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" />
   <style>
     :root{
-      --bg:#f6f8fb;
-      --ink:#161b22;
-      --ink-dim:#5a6472;
-      --ink-faint:#98a1b0;
-      --card:#ffffff;
-      --line:#e2e7ef;
-      --line-2:#cfd6e2;
-      --spine:#aab3c2;
-      --current:#0e9f6e;
-      --dev:#2563eb;
-      --upcoming:#7c3aed;
-      --future:#d97706;
-      --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
-      --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+      /* DESIGN.md tokens (Vercel-inspired) */
+      --ink:#171717; --body:#4d4d4d; --mute:#888888;
+      --hairline:#ebebeb; --hairline-strong:#a1a1a1;
+      --canvas:#ffffff; --canvas-soft:#fafafa; --canvas-soft-2:#f5f5f5;
+      --link:#0070f3;
+      /* Origin semantics (Project adaptations) */
+      --imp:#c50000; --imp-soft:#f7d4d6; --imp-bg:#fdf3f3;
+      --inh:#1a7f37; --inh-soft:#d6f5df; --inh-bg:#f2fbf5;
+      --unk:#ab570a; --unk-soft:#ffefcf;
+      --r-sm:6px; --r-md:8px; --r-lg:12px;
+      --sans:"Geist",Inter,system-ui,-apple-system,sans-serif;
+      --mono:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+      --shadow:0 1px 1px rgba(0,0,0,.04),0 4px 8px rgba(0,0,0,.04),0 0 0 1px var(--hairline);
+      --shadow-hover:0 1px 1px rgba(0,0,0,.05),0 8px 22px rgba(0,0,0,.09),0 0 0 1px var(--hairline-strong);
     }
     *{box-sizing:border-box}
-    html,body{margin:0;padding:0;height:100%}
+    html{color-scheme:light}
+    html,body{margin:0;padding:0}
     body{
-      background:var(--bg);color:var(--ink);font-family:var(--sans);
-      -webkit-font-smoothing:antialiased;display:flex;flex-direction:column;min-height:100vh;overflow:hidden;
+      background:var(--canvas-soft);color:var(--ink);font-family:var(--sans);
+      -webkit-font-smoothing:antialiased;min-height:100dvh;display:flex;flex-direction:column;
+      font-variant-numeric:tabular-nums;
+    }
+    button{font-family:var(--sans);touch-action:manipulation}
+    h1,h2{text-wrap:balance}
+    :is(button,a,[role="button"],[tabindex="0"]):focus-visible{
+      outline:2px solid var(--link);outline-offset:2px;border-radius:var(--r-sm);
     }
 
-    /* ---- top bar ---- */
+    /* ============ header ============ */
     header{
-      display:flex;align-items:center;gap:16px;padding:14px 22px;background:#fff;
-      border-bottom:1px solid var(--line);z-index:5;flex:none;
+      display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+      padding:14px 24px;background:var(--canvas);border-bottom:1px solid var(--hairline);
+      position:sticky;top:0;z-index:40;
     }
-    .brand{display:flex;align-items:center;gap:11px}
-    .mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;display:grid;place-items:center;font-size:14px;flex:none}
-    .brand b{font-weight:700;letter-spacing:.01em}
-    .brand small{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);font-weight:500}
-    .spacer{flex:1}
-    .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-    .btn{font-family:var(--mono);font-size:12px;color:var(--ink);background:#fff;border:1px solid var(--line-2);border-radius:8px;padding:8px 12px;cursor:pointer;transition:.15s}
-    .btn:hover{border-color:#2563eb;color:#2563eb}
-    .conf{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--future);background:#fff4e6;border:1px solid #ffdfb0;padding:5px 10px;border-radius:999px;white-space:nowrap}
-
-    /* ---- legend row ---- */
-    .subbar{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:9px 22px;background:#fff;border-bottom:1px solid var(--line);font-size:12px;color:var(--ink-dim);flex:none}
-    .legend{display:flex;gap:14px;flex-wrap:wrap}
-    .legend .li{display:inline-flex;align-items:center;gap:6px}
-    .legend .dot{width:9px;height:9px;border-radius:50%}
-    .hint{margin-left:auto;color:var(--ink-faint);font-family:var(--mono);font-size:11px}
-    .hint b{color:var(--ink-dim)}
-
-    /* ---- viewport / stage ---- */
-    .viewport{flex:1;overflow:auto;position:relative;cursor:grab}
-    .viewport.grabbing{cursor:grabbing}
-    .stage{position:relative;transform-origin:0 0}
-    .stage svg.bones{position:absolute;left:0;top:0;pointer-events:none;z-index:1}
-
-    .node{
-      position:absolute;left:0;top:0;z-index:2;
-      background:var(--card);border:1px solid var(--line);border-left:3px solid var(--c,var(--line-2));
-      border-radius:10px;padding:9px 12px;box-shadow:0 1px 2px rgba(20,30,50,.05),0 4px 14px rgba(20,30,50,.05);
-      width:max-content;max-width:184px;
-      transition:transform .4s cubic-bezier(.22,.61,.36,1),opacity .32s ease,box-shadow .15s;
-      opacity:1;user-select:none;
+    .brand{display:flex;align-items:baseline;gap:10px}
+    .brand b{font-weight:600;font-size:15px;letter-spacing:-.3px}
+    .brand span{font:500 11px/16px var(--mono);color:var(--mute);text-transform:uppercase;letter-spacing:.14em}
+    .tabs{display:flex;gap:2px;background:var(--canvas-soft-2);border:1px solid var(--hairline);border-radius:var(--r-md);padding:3px;margin-left:8px}
+    .tabs button{
+      border:0;background:transparent;border-radius:var(--r-sm);padding:6px 14px;cursor:pointer;
+      font:500 13px/20px var(--sans);color:var(--body);transition:background .15s,color .15s;
     }
-    .node.expandable{cursor:pointer}
-    .node.expandable:hover{box-shadow:0 2px 6px rgba(20,30,50,.09),0 10px 26px rgba(20,30,50,.12);border-color:var(--c,var(--line-2))}
-    .node .date{font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;color:var(--c,var(--ink-dim));font-weight:600;display:flex;align-items:center;gap:6px;margin-bottom:3px}
-    .node .fac{font-family:var(--mono);font-size:9.5px;letter-spacing:.02em;color:var(--ink-dim);background:#f1f4f9;border:1px solid var(--line);border-radius:5px;padding:1px 5px}
-    .node .label{font-weight:600;font-size:13.5px;line-height:1.3}
-    .node.ms .label{font-size:14.5px}
-    .node .detail{font-size:11.5px;color:var(--ink-dim);margin-top:3px;line-height:1.35}
-    .node .exp{
-      display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-family:var(--mono);font-size:10.5px;font-weight:600;
-      color:var(--c,var(--ink-dim));background:color-mix(in srgb,var(--c,#888) 12%,#fff);
-      border:1px solid color-mix(in srgb,var(--c,#888) 30%,#fff);border-radius:999px;padding:2px 8px;
+    .tabs button:hover{color:var(--ink)}
+    .tabs button[aria-selected="true"]{background:var(--canvas);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08),0 0 0 1px var(--hairline)}
+    .hspacer{flex:1}
+    .legend{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+    .legend .li{display:inline-flex;align-items:center;gap:6px;font:400 12px/16px var(--sans);color:var(--body)}
+    .ldot{width:9px;height:9px;border-radius:50%;flex:none}
+    .ldot.imp{background:var(--imp)} .ldot.inh{background:var(--inh)} .ldot.unk{background:var(--unk)}
+    .conf{font:500 10px/14px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--body);
+      border:1px solid var(--hairline-strong);padding:4px 10px;border-radius:var(--r-sm)}
+
+    main{flex:1;display:flex;flex-direction:column;min-height:0}
+    .view{display:none;flex:1;min-height:0}
+    body[data-view="gantt"] #view-gantt{display:block}
+    body[data-view="fishbone"] #view-fishbone{display:flex;flex-direction:column}
+    body[data-view="slides"] #view-slides{display:flex;flex-direction:column}
+
+    /* ============ shared chips ============ */
+    .fchip{
+      display:inline-flex;align-items:center;gap:5px;font:500 11px/14px var(--mono);
+      border-radius:var(--r-sm);padding:2px 7px;border:1px solid;white-space:nowrap;
     }
-    .node.open .exp .sign::before{content:"–"}
-    .node .exp .sign::before{content:"+"}
-    .node .status-dot{width:8px;height:8px;border-radius:50%;background:var(--c);flex:none;margin-left:auto}
-
-    /* head of the fish */
-    .node.head{
-      border:none;border-radius:12px;color:#fff;padding:12px 16px;max-width:220px;
-      background:linear-gradient(135deg,#2563eb,#7c3aed);box-shadow:0 10px 30px -8px rgba(124,58,237,.5);
+    .fchip.imp{color:var(--imp);background:var(--imp-bg);border-color:var(--imp-soft)}
+    .fchip.inh{color:var(--inh);background:var(--inh-bg);border-color:var(--inh-soft)}
+    .badge-unk{
+      display:inline-flex;font:500 10px/13px var(--mono);letter-spacing:.04em;
+      color:var(--unk);background:var(--unk-soft);border-radius:var(--r-sm);padding:2px 6px;
     }
-    .node.head .k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
-    .node.head .label{font-size:15px;color:#fff}
+    .badge-na{color:var(--mute);font:400 12px/16px var(--mono)}
+    .statuschip{
+      display:inline-flex;font:500 10.5px/14px var(--mono);letter-spacing:.06em;text-transform:uppercase;
+      color:var(--body);border:1px solid var(--hairline);background:var(--canvas);
+      border-radius:var(--r-sm);padding:2px 7px;white-space:nowrap;
+    }
 
-    .s-current{--c:var(--current)} .s-dev{--c:var(--dev)} .s-upcoming{--c:var(--upcoming)} .s-future{--c:var(--future)}
+    /* ============ GANTT ============ */
+    #view-gantt{overflow-y:auto;padding:24px}
+    .gwrap{max-width:1280px;margin:0 auto}
+    .gtitle{font:600 24px/32px var(--sans);letter-spacing:-.96px;margin:2px 0 4px}
+    .gsub{font:400 14px/20px var(--sans);color:var(--body);max-width:65ch;margin:0 0 20px}
+    .gscroll{overflow-x:auto;background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--r-lg);box-shadow:0 1px 2px rgba(0,0,0,.03)}
+    .gantt{min-width:1060px;position:relative}
+    .gmonths{display:flex;border-bottom:1px solid var(--hairline);position:sticky;top:0;background:var(--canvas);z-index:5}
+    .gmonths .gname{flex:none}
+    .gmonths .gcell{flex:1;font:500 11px/14px var(--mono);color:var(--mute);padding:10px 0 8px 8px;border-left:1px solid var(--hairline)}
+    .gname{width:218px;padding:0 14px;flex:none}
+    .grow{display:flex;align-items:stretch;border-bottom:1px solid var(--hairline)}
+    .grow[data-slide]{cursor:pointer;transition:background .12s}
+    .grow[data-slide]:hover{background:var(--canvas-soft)}
+    .grow:last-child{border-bottom:0}
+    .grow .gname{display:flex;flex-direction:column;justify-content:center;gap:3px;padding-top:9px;padding-bottom:9px}
+    .grow .gname .nm{font:500 13px/17px var(--sans);letter-spacing:-.2px;display:flex;align-items:center;gap:7px}
+    .grow .gname .meta{display:flex;gap:6px;align-items:center}
+    .odot{width:8px;height:8px;border-radius:50%;flex:none}
+    .odot.imp{background:var(--imp)} .odot.inh{background:var(--inh)}
+    .gtrack{flex:1;position:relative;min-height:52px}
+    .ggrid{position:absolute;inset:0;display:flex;pointer-events:none}
+    .ggrid i{flex:1;border-left:1px solid var(--hairline)}
+    .gbar{
+      position:absolute;top:50%;transform:translateY(-50%);height:20px;border-radius:var(--r-sm);
+      display:flex;align-items:center;overflow:visible;
+    }
+    .gbar.imp{background:var(--imp-soft)} .gbar.inh{background:var(--inh-soft)}
+    .gbar .fill{position:absolute;inset:0;border-radius:inherit}
+    .gbar.imp .fill{border:1px solid color-mix(in srgb,var(--imp) 35%,transparent)}
+    .gbar.inh .fill{border:1px solid color-mix(in srgb,var(--inh) 35%,transparent)}
+    .gbar.open-start{border-top-left-radius:0;border-bottom-left-radius:0}
+    .gbar.open-start .fill{border-left:0;
+      -webkit-mask-image:linear-gradient(90deg,transparent,#000 26px);mask-image:linear-gradient(90deg,transparent,#000 26px)}
+    .gbar.open-start{-webkit-mask-image:linear-gradient(90deg,transparent,#000 26px);mask-image:linear-gradient(90deg,transparent,#000 26px)}
+    .gbar.fade-end{-webkit-mask-image:linear-gradient(90deg,#000 60%,transparent 99%);mask-image:linear-gradient(90deg,#000 60%,transparent 99%)}
+    .gbar .blabel{position:relative;font:500 10.5px/14px var(--mono);padding:0 8px;white-space:nowrap}
+    .gbar.imp .blabel{color:var(--imp)} .gbar.inh .blabel{color:var(--inh)}
+    .gmark{position:absolute;top:50%;width:9px;height:9px;transform:translate(-50%,-50%) rotate(45deg);border-radius:2px;z-index:2}
+    .gmark.imp{background:var(--imp)} .gmark.inh{background:var(--inh)} .gmark.ink{background:var(--ink)}
+    .gmark-tip{position:absolute;top:calc(50% + 10px);transform:translateX(-50%);font:400 10px/13px var(--mono);color:var(--mute);white-space:nowrap}
+    .today{position:absolute;top:0;bottom:0;width:1px;background:var(--link);z-index:4;pointer-events:none}
+    .today::after{content:"today";position:absolute;top:2px;left:5px;font:500 9.5px/12px var(--mono);color:var(--link)}
+    .gantt .grow ~ .grow .today::after{content:none}
+    .gbar.open-start .blabel{padding-left:34px}
+    .gmark-tip.up{top:auto;bottom:calc(50% + 10px)}
 
-    footer{flex:none;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 22px;background:#fff;border-top:1px solid var(--line);font-size:12px;color:var(--ink-faint)}
+    .lanes-h{font:600 20px/28px var(--sans);letter-spacing:-.6px;margin:34px 0 4px}
+    .lanes-sub{font:400 14px/20px var(--sans);color:var(--body);max-width:65ch;margin:0 0 16px}
+    .lane .gname .nm{font-weight:500}
+    .lseg{position:absolute;top:50%;transform:translateY(-50%);height:10px;border-radius:999px}
+    .lseg.imp{background:var(--imp-soft);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--imp) 30%,transparent)}
+    .lseg.inh{background:var(--inh-soft);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--inh) 30%,transparent)}
+    .lnote{font:400 11px/15px var(--sans);color:var(--mute)}
+
+    /* ============ FISHBONE ============ */
+    #view-fishbone .fbbar{
+      display:flex;gap:8px;align-items:center;padding:10px 24px;background:var(--canvas);
+      border-bottom:1px solid var(--hairline);flex-wrap:wrap;
+    }
+    .btn{
+      font:500 12.5px/18px var(--sans);color:var(--ink);background:var(--canvas);
+      border:1px solid var(--hairline);border-radius:var(--r-sm);padding:6px 12px;cursor:pointer;
+      transition:border-color .15s,color .15s;
+    }
+    .btn:hover{border-color:var(--hairline-strong)}
+    .fbhint{font:400 12px/16px var(--sans);color:var(--mute);margin-left:auto}
+    .fbviewport{flex:1;overflow:auto;position:relative;cursor:grab;background:var(--canvas-soft);overscroll-behavior:contain}
+    .fbviewport.grabbing{cursor:grabbing;user-select:none}
+    .fbstage{position:relative}
+    .fbstage svg{position:absolute;left:0;top:0;pointer-events:none;z-index:1}
+    .fnode{
+      position:absolute;z-index:2;background:var(--canvas);border:1px solid var(--hairline);
+      border-radius:var(--r-md);padding:8px 11px;box-shadow:var(--shadow);
+      width:max-content;max-width:196px;user-select:none;
+      transition:transform .35s cubic-bezier(.22,.61,.36,1),opacity .28s ease,box-shadow .15s;
+    }
+    .fnode.expandable{cursor:pointer}
+    .fnode.expandable:hover{box-shadow:var(--shadow-hover)}
+    .fnode .fdate{font:500 10.5px/14px var(--mono);color:var(--mute);display:flex;align-items:center;gap:6px;margin-bottom:3px}
+    .fnode .flabel{font:500 13px/17px var(--sans);letter-spacing:-.2px}
+    .fnode.product .flabel{font-weight:600;font-size:13.5px}
+    .fnode .fexp{
+      display:inline-flex;align-items:center;gap:4px;margin-top:7px;
+      font:500 10.5px/14px var(--mono);color:var(--body);
+      background:var(--canvas-soft-2);border:1px solid var(--hairline);border-radius:999px;padding:1px 8px;
+    }
+    .fnode.open .fexp .sg::before{content:"-"}
+    .fnode .fexp .sg::before{content:"+"}
+    .fnode .fvalue{font:400 11.5px/15px var(--mono);color:var(--body);margin-top:2px}
+    .fnode .fvalue .badge-unk,.fnode .fvalue .badge-na{margin-left:2px}
+
+    /* ============ SLIDES ============ */
+    #view-slides{background:var(--canvas-soft-2)}
+    .deck{flex:1;display:flex;align-items:center;justify-content:center;padding:22px;min-height:0}
+    .slide{
+      background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--r-lg);
+      box-shadow:0 1px 2px rgba(0,0,0,.04),0 12px 40px rgba(0,0,0,.07);
+      width:min(1060px,100%);max-height:100%;overflow-y:auto;padding:40px 48px;
+    }
+    .slide .s-status{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+    .slide h1{font:600 32px/40px var(--sans);letter-spacing:-1.28px;margin:0 0 6px}
+    .slide h2{font:600 20px/28px var(--sans);letter-spacing:-.6px;margin:26px 0 10px}
+    .slide .s-dates{font:500 13px/20px var(--mono);color:var(--body);margin:0 0 4px}
+    .slide .s-note{font:400 14px/22px var(--sans);color:var(--body);max-width:72ch;margin:10px 0 0}
+    .subsys{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin-top:18px}
+    .subsys .card{border:1px solid var(--hairline);border-radius:var(--r-md);padding:12px 14px;background:var(--canvas)}
+    .subsys .card.inh-card{background:var(--inh-bg);border-color:var(--inh-soft)}
+    .subsys .card.imp-card{background:var(--imp-bg);border-color:var(--imp-soft)}
+    .subsys .chead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+    .subsys .chead b{font:600 13px/18px var(--sans);letter-spacing:-.2px}
+    .subsys dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:3px 12px}
+    .subsys dt{font:400 11.5px/16px var(--sans);color:var(--mute)}
+    .subsys dd{margin:0;font:500 11.5px/16px var(--mono);color:var(--ink);text-align:right}
+    .deckbar{
+      display:flex;align-items:center;gap:12px;padding:12px 24px;background:var(--canvas);
+      border-top:1px solid var(--hairline);justify-content:center;
+    }
+    .deckbar .count{font:500 12px/16px var(--mono);color:var(--body);min-width:64px;text-align:center}
+    .tslide h1{font-size:40px;line-height:46px;letter-spacing:-1.8px}
+    .tslide .big-legend{display:flex;gap:22px;margin:22px 0 0;flex-wrap:wrap}
+    .tslide .big-legend .li{display:flex;align-items:center;gap:8px;font:400 14px/20px var(--sans);color:var(--body)}
+    .story{font:400 15px/24px var(--sans);color:var(--body);max-width:72ch;margin:14px 0 0}
+    .sumgrid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:16px}
+    .sumrow{display:flex;align-items:center;gap:12px;border:1px solid var(--hairline);border-radius:var(--r-md);padding:10px 14px}
+    .sumrow b{font:500 13px/18px var(--sans);width:150px;flex:none}
+    .sumrow .st{font:500 12px/16px var(--mono)}
+    .sumrow .st.inh{color:var(--inh)} .sumrow .st.imp{color:var(--imp)}
+    .sumrow .why{font:400 12px/16px var(--sans);color:var(--mute);margin-left:auto;text-align:right}
+
+    footer{
+      display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+      padding:10px 24px;background:var(--canvas);border-top:1px solid var(--hairline);
+      font:400 11.5px/16px var(--sans);color:var(--mute);
+    }
     footer .mono{font-family:var(--mono)}
 
-    @media(max-width:640px){
-      .hint{display:none}
-      header{padding:12px 16px}.subbar{padding:8px 16px}
+    @media(max-width:720px){
+      header{padding:10px 16px;gap:10px}
+      .legend{display:none}
+      #view-gantt{padding:14px}
+      .gname{width:150px;padding:0 10px}
+      .slide{padding:24px 20px}
+      .slide h1{font-size:24px;line-height:30px;letter-spacing:-.9px}
+      .tslide h1{font-size:28px;line-height:34px}
+      .fbhint{display:none}
+      .subsys dl{grid-template-columns:1fr}
+      .subsys dd{text-align:left}
+      .sumrow{flex-wrap:wrap}
+      .sumrow .why{margin-left:0;text-align:left;width:100%}
+    }
+    @media (prefers-reduced-motion: reduce){
+      *{transition:none !important;animation:none !important}
     }
   </style>
 </head>
-<body>
+<body data-view="gantt">
+
   <header>
-    <div class="brand">
-      <span class="mark">◆</span>
-      <span><b>NOT DRONES</b><small>Product Roadmap</small></span>
+    <div class="brand"><b>NOT Drones</b><span>Roadmap</span></div>
+    <div class="tabs" role="tablist" aria-label="View">
+      <button role="tab" aria-selected="true" data-v="gantt">Gantt</button>
+      <button role="tab" aria-selected="false" data-v="fishbone">Fishbone</button>
+      <button role="tab" aria-selected="false" data-v="slides">Slides</button>
     </div>
-    <div class="spacer"></div>
-    <div class="controls">
-      <button class="btn" id="expandAll">Expand all</button>
-      <button class="btn" id="collapseAll">Collapse</button>
-      <button class="btn" id="fit">Reset view</button>
-      <span class="conf">Internal · Confidential</span>
+    <div class="hspacer"></div>
+    <div class="legend">
+      <span class="li"><i class="ldot imp"></i>Imported (CN)</span>
+      <span class="li"><i class="ldot inh"></i>In-house (NDIPL)</span>
+      <span class="li"><i class="ldot unk"></i>Unknown spec</span>
     </div>
+    <span class="conf">Internal</span>
   </header>
 
-  <div class="subbar">
-    <div class="legend">
-      <span class="li"><span class="dot" style="background:var(--current)"></span>Current</span>
-      <span class="li"><span class="dot" style="background:var(--dev)"></span>In development</span>
-      <span class="li"><span class="dot" style="background:var(--upcoming)"></span>Upcoming</span>
-      <span class="li"><span class="dot" style="background:var(--future)"></span>Future opportunity</span>
-    </div>
-    <span style="color:var(--ink-faint)">Build source: <b style="color:var(--ink-dim)">LW · RJ · BJ · LG</b> factory partners · <b style="color:var(--ink-dim)">Alpha</b> common frame · <b style="color:var(--ink-dim)">In-house</b> NOT Drones</span>
-    <span class="hint">Click a node to <b>explore</b> → the fishbone grows. Drag to pan.</span>
-  </div>
+  <main>
+    <section class="view" id="view-gantt"></section>
 
-  <div class="viewport" id="viewport">
-    <div class="stage" id="stage">
-      <svg class="bones" id="bones"></svg>
-    </div>
-  </div>
+    <section class="view" id="view-fishbone">
+      <div class="fbbar">
+        <button class="btn" id="fb-expand">Expand all</button>
+        <button class="btn" id="fb-collapse">Collapse all</button>
+        <span class="fbhint">Click a node to expand. Drag to pan.</span>
+      </div>
+      <div class="fbviewport" id="fbviewport" tabindex="0" aria-label="Roadmap fishbone diagram, scrollable"><div class="fbstage" id="fbstage"><svg id="fbsvg"></svg></div></div>
+    </section>
+
+    <section class="view" id="view-slides">
+      <div class="deck" id="deck"></div>
+      <div class="deckbar">
+        <button class="btn" id="s-prev" aria-label="Previous slide">&#8592; Prev</button>
+        <span class="count" id="s-count" aria-live="polite"></span>
+        <button class="btn" id="s-next" aria-label="Next slide">Next &#8594;</button>
+      </div>
+    </section>
+  </main>
 
   <footer>
-    <span>NOT Drones Innovations Pvt Ltd</span>
-    <span class="mono">internal roadmap · not for distribution</span>
+    <span>NOT Drones Innovations Pvt Ltd. Internal planning document, not a public commitment.</span>
+    <span class="mono">May 2026 - Apr 2027</span>
   </footer>
 
   <!-- =====================================================================
-       ★★★  SINGLE SOURCE OF TRUTH — EDIT THE ROADMAP HERE  ★★★
-       Each milestone: { date, factory, status, label, children:[…] }
-       Each child:     { label, detail?, children?:[…] }  ← nest freely
-       status ∈ "current" | "dev" | "upcoming" | "future"
+       ★★★  SINGLE SOURCE OF TRUTH - EDIT THE ROADMAP HERE  ★★★
+       FACTORIES: origin "cn" (imported, red) | "in" (NDIPL in-house, green)
+       Products:  start/end "YYYY-MM" or "YYYY-MM-DD" | null = open/ongoing
+                  status: shipping | testing | dev | upcoming | fading
+       Specs:     value "Unknown" renders an amber badge, "NA" renders muted
        ===================================================================== -->
   <script>
-    const DATA = {
-      milestones: [
-        { date:"Aug 2026", factory:"LW", status:"current", label:"ORO — 2-Axis 4K", children:[
-          { label:"Factory", detail:"Built at LW", children:[ {label:"LW", detail:"Chinese factory partner"} ] },
-          { label:"Camera", children:[ {label:"4K sensor"}, {label:"2-axis gimbal", detail:"Tilt stabilization"} ] },
-          { label:"Airframe", children:[ {label:"Foldable"}, {label:"Sub-250 g"} ] },
-          { label:"Smart flight", children:[ {label:"GPS Follow-Me"}, {label:"Waypoint"}, {label:"Return-to-home"} ] }
-        ]},
-        { date:"Sep 2026", factory:"RJ", status:"upcoming", label:"Nabhyan GPS — 1080p 30fps", children:[
-          { label:"Factory", children:[ {label:"RJ", detail:"Chinese factory partner"} ] },
-          { label:"Camera", children:[ {label:"1080p HD"}, {label:"30 fps"} ] },
-          { label:"GPS", children:[ {label:"Position hold"}, {label:"Return-to-home"} ] },
-          { label:"Airframe", children:[ {label:"160 g"}, {label:"Brushless motors"} ] }
-        ]},
-        { date:"Oct 2026", factory:"BJ", status:"upcoming", label:"ORO — 3-Axis 4K · Sony lens", children:[
-          { label:"Factory", children:[ {label:"BJ", detail:"Chinese factory partner"} ] },
-          { label:"New frame", detail:"Becomes the common platform", children:[
-            {label:"Mechanical development"}, {label:"Reusable across SKUs"} ] },
-          { label:"3-axis gimbal", children:[ {label:"Pitch"}, {label:"Roll"}, {label:"Yaw"} ] },
-          { label:"Camera", children:[ {label:"4K @ 30 fps"}, {label:"Sony lens"}, {label:"Improved sensor"} ] },
-          { label:"Electronics", children:[ {label:"Flight controller"}, {label:"ESCs"}, {label:"Power system"} ] },
-          { label:"Battery", children:[ {label:"30-min flight"} ] }
-        ]},
-        { date:"Nov 2026", factory:"Alpha", status:"upcoming", label:"ORO — Single-Axis 4K", children:[
-          { label:"Frame", detail:"Reuses the Alpha common frame", children:[ {label:"Alpha frame", detail:"Same as ORO 3-axis"} ] },
-          { label:"Gimbal", children:[ {label:"Single-axis"} ] },
-          { label:"Camera", children:[ {label:"4K"}, {label:"30 fps"} ] },
-          { label:"Why it's fast", children:[ {label:"Shared BOM"}, {label:"Shared components"}, {label:"Less new development"} ] }
-        ]},
-        { date:"Dec 2026", factory:"In-house", status:"dev", label:"Carbon-fibre DIY drone", children:[
-          { label:"Airframe", children:[ {label:"Carbon fibre"} ] },
-          { label:"BOM", children:[ {label:"Nabhyan GPS BOM"} ] },
-          { label:"Electronics", children:[ {label:"In-house"} ] },
-          { label:"Flight controller", detail:"In-house FC", children:[
-            {label:"Control over hardware"}, {label:"Feature parity"}, {label:"Platform independence"} ] },
-          { label:"Camera", children:[ {label:"None (this build)"} ] }
-        ]},
-        { date:"Jan 2027", factory:"RJ · SDK", status:"future", label:"Alpha + Thermal + custom apps", children:[
-          { label:"Frame", children:[ {label:"Alpha common frame"} ] },
-          { label:"Payload", children:[ {label:"Thermal camera"} ] },
-          { label:"Factory SDK", detail:"Unlocked via RJ", children:[
-            {label:"Video transmission"}, {label:"Telemetry"}, {label:"Wireless commands"} ] },
-          { label:"Software", children:[
-            {label:"Custom laptop app"}, {label:"Mobile app"},
-            {label:"For specific industries"}, {label:"For army"} ] }
-        ]},
-        { date:"Feb 2027", factory:"RJ · SDK", status:"future", label:"Alpha + Single-Axis 4K + custom apps", children:[
-          { label:"Frame", children:[ {label:"Alpha common frame"} ] },
-          { label:"Payload", children:[ {label:"Single-axis 4K camera"} ] },
-          { label:"Factory SDK", children:[ {label:"Video"}, {label:"Telemetry"}, {label:"Commands"} ] },
-          { label:"Software", children:[
-            {label:"Custom laptop app"}, {label:"Mobile app"},
-            {label:"For specific industries"}, {label:"For army"} ] }
-        ]},
-        { date:"Mar 2027", factory:"LW", status:"future", label:"Nabhyan GPS + own flight controller", children:[
-          { label:"Flight controller", children:[ {label:"In-house FC"} ] },
-          { label:"Camera", children:[ {label:"LW camera"} ] },
-          { label:"Application", children:[ {label:"LW application"} ] },
-          { label:"Outcome", children:[ {label:"More control of the stack"} ] }
-        ]},
-        { date:"Apr 2027", factory:"Alpha", status:"future", label:"Alpha kamikaze configuration", children:[
-          { label:"Frame", children:[ {label:"Alpha common frame"} ] },
-          { label:"Payload", children:[ {label:"Thermal camera"}, {label:"Explosive payload"} ] },
-          { label:"Role", children:[ {label:"Loitering munition (kamikaze)"} ] },
-          { label:"Application", children:[ {label:"Defence"} ] }
-        ]}
-      ],
-      head: { k:"Where this leads", label:"Platform → Software → Autonomy" }
-    };
+  const TL = { first:"2026-05", last:"2027-04" };   // timeline range shown
+  const TODAY = "2026-09-12";
 
-    /* ============================ ENGINE ============================ */
-    const STATUS_LABEL = { current:"Current", dev:"In development", upcoming:"Upcoming", future:"Future opportunity" };
-    const LEAF_W = 210, GAPX = 40, LV = 120, HPAD = 90, VPAD = 70, HEAD_GAP = 90;
+  const FACTORIES = {
+    LG:    { origin:"cn", note:"Chinese factory partner" },
+    LW:    { origin:"cn", note:"Chinese factory partner (camera SDK, mobile app)" },
+    Yongyu:{ origin:"cn", note:"Chinese factory partner" },
+    BJ:    { origin:"cn", note:"Chinese factory partner" },
+    RJ:    { origin:"cn", note:"Chinese factory partner" },
+    MJ:    { origin:"cn", note:"Chinese mould factory" },
+    KY:    { origin:"cn", note:"Chinese optical-flow supplier" },
+    Paaji: { origin:"cn", note:"Battery supplier, imported" },
+    NDIPL: { origin:"in", note:"NOT Drones in-house" }
+  };
 
-    const stage = document.getElementById('stage');
-    const bones = document.getElementById('bones');
-    const viewport = document.getElementById('viewport');
-    const expanded = new Set();
-    const els = new Map();          // id -> element
-    let prevVisible = new Set();
-
-    // assign ids + parent refs
-    (function assign(nodes, parent, path){
-      nodes.forEach((n,i)=>{
-        n.id = path + i;
-        n.parent = parent;
-        n.status = n.status || (parent ? parent.status : "future");
-        if(n.children) assign(n.children, n, n.id + ".");
-      });
-    })(DATA.milestones, null, "m");
-
-    function isVisible(n){
-      // milestone (no parent) always visible; child visible if parent visible & expanded
-      let p = n.parent;
-      let node = n;
-      while(p){
-        if(!expanded.has(p.id)) return false;
-        node = p; p = p.parent;
-      }
-      return true;
+  const DATA = [
+    {
+      id:"nabhyan-lg", name:"Nabhyan LG", status:"shipping",
+      start:null, end:null, deadlineLabel:"ongoing",
+      note:"Current non-GPS product, built end to end by LG. Continues while GPS SKUs take over.",
+      fc:{f:"LG", s:{ MCU:"Panchip PAN2025D", Barometer:"SPL06-001", IMU:"Unknown", GPS:"NA", Compass:"NA", Wireless:"separate IC", Range:"200 m" }},
+      wifi:{f:"LG", s:{ MPU:"Unknown", DDR:"NA", Camera:"1080p", Thermal:"NA", "Optical flow support":"Yes", "Wifi IC":"Unknown", Range:"200 m", "SD card":"NA" }},
+      of:{f:"LG", s:{ Camera:"Unknown", Board:"Integrated with Wifi", Interface:"UART", Protocol:"Custom - available" }},
+      battery:{f:"Paaji", s:{ Configuration:"1S" }},
+      frame:{f:"NDIPL", s:{ Material:"Nabhyan Plastic" }}
+    },
+    {
+      id:"nabhyan-gps", name:"Nabhyan GPS", status:"shipping",
+      start:null, end:null, deadlineLabel:"ongoing",
+      note:"Shipping now; a 200-unit batch is already sold. With-screen only today, no smart GPS features yet (RTH only). Uses a bought open-source mould that anyone can copy.",
+      fc:{f:"Yongyu", s:{ MCU:"MM32", Barometer:"SPL06-001", IMU:"Unknown", GPS:"Unknown", Compass:"Unknown", Wireless:"separate IC", Range:"500 m" }},
+      wifi:{f:"LW", s:{ MPU:"Unknown", DDR:"NA", Camera:"1080p", Thermal:"NA", "Optical flow support":"Yes", "Wifi IC":"Unknown", Range:"500 m", "SD card":"Available" }},
+      of:{f:"LW", s:{ Camera:"Unknown", Board:"Integrated with Wifi", Interface:"UART", Protocol:"Custom - available" }},
+      battery:{f:"Paaji", s:{ Configuration:"1S" }},
+      frame:{f:"NDIPL", s:{ Material:"Nabhyan Plastic" }}
+    },
+    {
+      id:"gps2", name:"Nabhyan GPS 2.0", status:"dev",
+      start:"2026-05", end:"2026-12", deadlineLabel:"Dec 2026",
+      markers:[ {d:"2026-10", label:"plastic design final, mould order to MJ", tone:"ink"} ],
+      note:"Same circuitry and GPS hardware, transformed: LW mobile app unlocks follow-me and circle, with-screen and without-screen versions, and an NDIPL-designed plastic in an owned MJ mould replaces the copyable open-source shell. Plastic design ran May to Oct 2026.",
+      fc:{f:"Yongyu", s:{ MCU:"MM32", Barometer:"SPL06-001", IMU:"Unknown", GPS:"Unknown", Compass:"Unknown", Wireless:"separate IC", Range:"500 m" }},
+      wifi:{f:"LW", s:{ MPU:"Unknown", DDR:"NA", Camera:"1080p", Thermal:"NA", "Optical flow support":"Yes", "Wifi IC":"Unknown", Range:"500 m", "SD card":"Available" }},
+      of:{f:"LW", s:{ Camera:"Unknown", Board:"Integrated with Wifi", Interface:"UART", Protocol:"Custom - available" }},
+      battery:{f:"Paaji", s:{ Configuration:"1S" }},
+      frame:{f:"NDIPL", s:{ Material:"New NDIPL design, MJ mould" }}
+    },
+    {
+      id:"diy-nabhyan", name:"DIY Nabhyan", status:"testing",
+      start:null, end:"2026-09-25", deadlineLabel:"25 Sep 2026",
+      markers:[ {d:"2026-09-25", label:"launch, batch of 20", tone:"inh"} ],
+      note:"First fully in-house electronics build: ESP32 flight controller with ESP-NOW comms, 160 g carbon fibre frame, motors and ESCs shared with Nabhyan GPS. Remaining before launch: takeoff feature, optical-flow position-hold tuning, landing refinement. Optical flow from KY with UART protocol datasheet; LG and LW datasheets also in hand.",
+      fc:{f:"NDIPL", s:{ MCU:"ESP32", Barometer:"SPL06-001", IMU:"LSM6DS3TR-C", GPS:"NA", Compass:"NA", Wireless:"ESP-NOW", Range:"100 m" }},
+      wifi:{f:"NDIPL", s:{ MPU:"NA", DDR:"NA", Camera:"NA", Thermal:"NA", "Optical flow support":"NA", "Wifi IC":"NA", Range:"NA", "SD card":"NA" }},
+      of:{f:"KY", s:{ Camera:"Unknown", Board:"Integrated with Wifi", Interface:"UART", Protocol:"Custom - available" }},
+      battery:{f:"Paaji", s:{ Configuration:"1S" }},
+      frame:{f:"NDIPL", s:{ Material:"Carbon Fibre, 160 g" }}
+    },
+    {
+      id:"diy-oro", name:"DIY ORO", status:"dev",
+      start:"2026-09", end:"2026-12", deadlineLabel:"Dec 2026",
+      note:"Parallel with DIY Nabhyan, extended by camera integration and range work: LoRa 3 km RC link with long-range testing, experiments with low-cost long-range modules, and the LW camera module for long-range video.",
+      fc:{f:"NDIPL", s:{ MCU:"ESP32", Barometer:"SPL06-001", IMU:"LSM6DS3TR-C", GPS:"BN-880", Compass:"BN-880", Wireless:"LoRa", Range:"3 km" }},
+      wifi:{f:"NDIPL", s:{ MPU:"NA", DDR:"NA", Camera:"NA", Thermal:"NA", "Optical flow support":"NA", "Wifi IC":"NA", Range:"NA", "SD card":"NA" }},
+      of:{f:"LG", s:{ Camera:"Unknown", Board:"Integrated with Wifi", Interface:"UART", Protocol:"Custom - available" }},
+      battery:{f:"Paaji", s:{ Configuration:"2S" }},
+      frame:{f:"NDIPL", s:{ Material:"Carbon Fibre" }}
+    },
+    {
+      id:"oro4k-ws", name:"ORO 4k With Screen", status:"fading",
+      start:null, end:"2026-12", deadlineLabel:"fades Dec 2026",
+      note:"Selling today from BJ; will be fully replaced by the RJ 3-Axis line by December 2026.",
+      fc:{f:"BJ", s:{ MCU:"Unknown", Barometer:"Unknown", IMU:"Unknown", GPS:"Unknown", Compass:"Unknown", Wireless:"Unknown", Range:"Unknown" }},
+      wifi:{f:"BJ", s:{ MPU:"Unknown", DDR:"Unknown", Camera:"Unknown", Thermal:"NA", "Optical flow support":"Unknown", "Wifi IC":"Unknown", Range:"3 km", "SD card":"Available" }},
+      of:{f:"BJ", s:{ Camera:"Unknown", Board:"Integrated with Wifi", Interface:"Unknown", Protocol:"Unknown" }},
+      battery:{f:"Paaji", s:{ Configuration:"2S" }},
+      frame:{f:"NDIPL", s:{ Material:"ORO Plastic" }}
+    },
+    {
+      id:"oro4k-wos", name:"ORO 4k Without Screen", status:"fading",
+      start:null, end:"2026-12", deadlineLabel:"fades Dec 2026",
+      note:"Same fade-out as the with-screen version. Video goes to a phone app over general WiFi, so range is lower than the screen version.",
+      fc:{f:"BJ", s:{ MCU:"Unknown", Barometer:"Unknown", IMU:"Unknown", GPS:"Unknown", Compass:"Unknown", Wireless:"Unknown", Range:"Unknown" }},
+      wifi:{f:"BJ", s:{ MPU:"Unknown", DDR:"Unknown", Camera:"Unknown", Thermal:"NA", "Optical flow support":"Unknown", "Wifi IC":"Unknown", Range:"3 km", "SD card":"Available" }},
+      of:{f:"BJ", s:{ Camera:"Unknown", Board:"Integrated with Wifi", Interface:"Unknown", Protocol:"Unknown" }},
+      battery:{f:"Paaji", s:{ Configuration:"2S" }},
+      frame:{f:"NDIPL", s:{ Material:"ORO Plastic" }}
+    },
+    {
+      id:"3axis-ws", name:"3 Axis With Screen", status:"testing",
+      start:null, end:"2026-11-15", deadlineLabel:"15 Nov 2026",
+      markers:[ {d:"2026-09-30", label:"20 test units arrive, 150 ready at RJ", tone:"ink"},
+                {d:"2026-11-15", label:"launch and dispatch", tone:"imp"} ],
+      note:"In testing now. 20 units reach our facility by end September while RJ holds 150 ready; launch and dispatch on 15 Nov 2026. Replaces ORO 4k.",
+      fc:{f:"RJ", s:{ MCU:"Unknown", Barometer:"Unknown", IMU:"Unknown", GPS:"Unknown", Compass:"Unknown", Wireless:"Unknown", Range:"Unknown" }},
+      wifi:{f:"RJ", s:{ MPU:"Unknown", DDR:"Unknown", Camera:"Unknown", Thermal:"NA", "Optical flow support":"Unknown", "Wifi IC":"Unknown", Range:"3 km", "SD card":"Available" }},
+      of:{f:"RJ", s:{ Camera:"Unknown", Board:"Integrated with Wifi", Interface:"Unknown", Protocol:"Unknown" }},
+      battery:{f:"Paaji", s:{ Configuration:"2S" }},
+      frame:{f:"NDIPL", s:{ Material:"MJ Plastic" }}
+    },
+    {
+      id:"3axis-wos", name:"3 Axis Without Screen", status:"upcoming",
+      start:"2026-11", end:"2027-01", deadlineLabel:"Jan 2027",
+      note:"Follows the with-screen launch. Phone-app video over general WiFi; needs the LW camera SDK path, no display board development.",
+      fc:{f:"RJ", s:{ MCU:"Unknown", Barometer:"Unknown", IMU:"Unknown", GPS:"Unknown", Compass:"Unknown", Wireless:"Unknown", Range:"Unknown" }},
+      wifi:{f:"RJ", s:{ MPU:"Unknown", DDR:"Unknown", Camera:"Unknown", Thermal:"NA", "Optical flow support":"Unknown", "Wifi IC":"Unknown", Range:"3 km", "SD card":"Available" }},
+      of:{f:"RJ", s:{ Camera:"Unknown", Board:"Integrated with Wifi", Interface:"Unknown", Protocol:"Unknown" }},
+      battery:{f:"Paaji", s:{ Configuration:"2S" }},
+      frame:{f:"NDIPL", s:{ Material:"MJ Plastic" }}
+    },
+    {
+      id:"single-ws", name:"Single Axis With Screen", status:"upcoming",
+      start:"2026-12", end:"2027-02", deadlineLabel:"Feb 2027",
+      note:"Yongyu flight controller with LW wifi board and a separate optical-flow board. With-screen needs a new display board with a DSI cable, a separate development track, and gives longer video range.",
+      fc:{f:"Yongyu", s:{ MCU:"Unknown", Barometer:"Unknown", IMU:"Unknown", GPS:"Unknown", Compass:"Unknown", Wireless:"Unknown", Range:"Unknown" }},
+      wifi:{f:"LW", s:{ MPU:"Unknown", DDR:"Unknown", Camera:"Unknown", Thermal:"NA", "Optical flow support":"Unknown", "Wifi IC":"Unknown", Range:"3 km", "SD card":"Available" }},
+      of:{f:"LW", s:{ Camera:"Unknown", Board:"Separate", Interface:"Unknown", Protocol:"Unknown" }},
+      battery:{f:"Paaji", s:{ Configuration:"2S" }},
+      frame:{f:"NDIPL", s:{ Material:"MJ Plastic" }}
+    },
+    {
+      id:"single-wos", name:"Single Axis Without Screen", status:"upcoming",
+      start:"2026-12", end:"2027-02", deadlineLabel:"Feb 2027",
+      note:"Launches with the with-screen version. Phone-app video over general WiFi via the LW camera SDK; lower range than the screen version.",
+      fc:{f:"Yongyu", s:{ MCU:"Unknown", Barometer:"Unknown", IMU:"Unknown", GPS:"Unknown", Compass:"Unknown", Wireless:"Unknown", Range:"Unknown" }},
+      wifi:{f:"LW", s:{ MPU:"Unknown", DDR:"Unknown", Camera:"Unknown", Thermal:"NA", "Optical flow support":"Unknown", "Wifi IC":"Unknown", Range:"3 km", "SD card":"Available" }},
+      of:{f:"LW", s:{ Camera:"Unknown", Board:"Separate", Interface:"Unknown", Protocol:"Unknown" }},
+      battery:{f:"Paaji", s:{ Configuration:"2S" }},
+      frame:{f:"NDIPL", s:{ Material:"MJ Plastic" }}
+    },
+    {
+      id:"army-single", name:"Army Single Axis", status:"dev",
+      start:"2026-11", end:"2027-03", deadlineLabel:"Mar 2027",
+      note:"Defence configuration, without screen. In-house STM32F722 flight controller and RV1103 wifi board with Anna thermal camera and Realtec wifi IC; LoRa 3 km link; RJ separate optical flow. The proof that the in-house stack reaches production grade.",
+      fc:{f:"NDIPL", s:{ MCU:"STM32F722", Barometer:"SPL06-001", IMU:"ICM42605", GPS:"BN-880", Compass:"BN-880", Wireless:"LoRa", Range:"3 km" }},
+      wifi:{f:"NDIPL", s:{ MPU:"RV1103", DDR:"NA", Camera:"1080p", Thermal:"Anna", "Optical flow support":"NA", "Wifi IC":"Realtec", Range:"3 km", "SD card":"Available" }},
+      of:{f:"RJ", s:{ Camera:"Unknown", Board:"Separate", Interface:"UART", Protocol:"Custom - available" }},
+      battery:{f:"Paaji", s:{ Configuration:"2S" }},
+      frame:{f:"NDIPL", s:{ Material:"MJ Plastic" }}
     }
+  ];
 
-    // ---- layout (tidy-tree mapped onto a fishbone) ----
-    function layoutNode(n, side, depth, xStart){
-      n.side = side; n.depth = depth;
-      const kids = (expanded.has(n.id) && n.children) ? n.children : [];
-      if(!kids.length){ n.x = xStart + LEAF_W/2; return LEAF_W; }
-      let c = xStart, first=null, last=null;
-      kids.forEach(k=>{ const w = layoutNode(k, side, depth+1, c); c += w; if(first===null)first=k.x; last=k.x; });
-      n.x = (first+last)/2;
-      return c - xStart;
-    }
+  /* Subsystem localization lanes: segments of {from,to,origin}, plus markers */
+  const LANES = [
+    { name:"Flight controller",
+      segs:[ {from:null,to:"2026-09",o:"imp"}, {from:"2026-09",to:null,o:"inh"} ],
+      markers:[ {d:"2026-09-25", label:"ESP32 in DIY Nabhyan", tone:"inh"},
+                {d:"2027-03", label:"STM32F722 production grade", tone:"inh"} ],
+      note:"" },
+    { name:"Wifi board",
+      segs:[ {from:null,to:"2027-03",o:"imp"}, {from:"2027-03",to:null,o:"inh"} ],
+      markers:[ {d:"2027-03", label:"RV1103 + Realtec in Army SKU", tone:"inh"} ],
+      note:"" },
+    { name:"Optical flow",
+      segs:[ {from:null,to:null,o:"imp"} ],
+      markers:[],
+      note:"KY, LG, LW datasheets in hand; no in-house date yet" },
+    { name:"Battery",
+      segs:[ {from:null,to:null,o:"imp"} ],
+      markers:[],
+      note:"Paaji, imported; no in-house date yet" },
+    { name:"Frame",
+      segs:[ {from:null,to:null,o:"inh"} ],
+      markers:[ {d:"2026-10", label:"owned mould design final, tooling at MJ", tone:"ink"} ],
+      note:"designs owned in-house; mould tooling made at MJ (CN)" }
+  ];
 
-    function layout(){
-      let cursor = 0;
-      DATA.milestones.forEach((m,i)=>{
-        m.side = (i%2===0) ? -1 : 1;
-        const w = layoutNode(m, m.side, 1, cursor);
-        cursor += Math.max(w, LEAF_W) + GAPX;
-      });
-      const contentW = Math.max(cursor - GAPX, LEAF_W);
+  /* ============================ ENGINE ============================ */
+  const STATUS = { shipping:"Shipping", testing:"Testing", dev:"In development", upcoming:"Upcoming", fading:"Phasing out" };
 
-      // vertical extents from visible nodes
-      let topD = 1, botD = 1;
-      const visit = n => { if(!isVisible(n)) return;
-        if(n.side<0) topD = Math.max(topD, n.depth); else botD = Math.max(botD, n.depth);
-        if(n.children) n.children.forEach(visit); };
-      DATA.milestones.forEach(visit);
+  const mIdx = s => { const [y,m] = s.split("-").map(Number); return (y-2026)*12 + (m-5); };
+  const N_MONTHS = mIdx(TL.last) + 1;
+  const dX = s => { if(!s) return null;
+    const p = s.split("-"); let x = mIdx(p[0]+"-"+p[1]);
+    if(p[2]) x += (Number(p[2])-1)/30; return x; };
+  const pct = x => (x / N_MONTHS * 100) + "%";
+  const monthName = i => {
+    const d = new Date(2026, 4 + i, 1);
+    return d.toLocaleString("en", {month:"short"}) + " " + String(d.getFullYear()).slice(2);
+  };
+  const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 
-      const NODEH = 78;
-      const topExtent = topD*LV, botExtent = botD*LV;
-      const worldH = topExtent + botExtent + 2*VPAD + NODEH;
-      const spineY = topExtent + VPAD + NODEH/2;
-      const headW = 240;
-      const worldW = HPAD*2 + contentW + HEAD_GAP + headW;
+  const originOf = f => FACTORIES[f] ? FACTORIES[f].origin : "cn";
+  const coreOrigin = p => (originOf(p.fc.f)==="in" && originOf(p.wifi.f)==="in") ? "inh" : "imp";
+  const unknownCount = p => ["fc","wifi","of","battery","frame"]
+    .reduce((n,k)=> n + Object.values(p[k].s).filter(v=>v==="Unknown").length, 0);
+  const specVal = v =>
+    v==="Unknown" ? '<span class="badge-unk">Unknown</span>' :
+    v==="NA"      ? '<span class="badge-na">NA</span>' : esc(v);
+  const fchip = f => `<span class="fchip ${originOf(f)==="in"?"inh":"imp"}">${esc(f)}</span>`;
 
-      // world coords onto every visible node
-      const place = n => { if(!isVisible(n)) return;
-        n.wx = HPAD + n.x;
-        n.wy = spineY + n.side * n.depth * LV;
-        if(n.children) n.children.forEach(place); };
-      DATA.milestones.forEach(place);
+  /* ---------------- GANTT ---------------- */
+  function ganttMarkers(markers){
+    return (markers||[]).map((m,i)=>{
+      const x = pct(dX(m.d));
+      return `<span class="gmark ${m.tone||"ink"}" style="left:${x}" title="${esc(m.label)}"></span>`+
+             `<span class="gmark-tip${i%2?" up":""}" style="left:${x}">${esc(m.label)}</span>`;
+    }).join("");
+  }
+  function ganttBar(p){
+    const s = p.start ? dX(p.start) : 0;
+    const e = p.end   ? dX(p.end)+ (p.end.length===7 ? 1 : 0) : N_MONTHS;  // month end = start of next
+    const cls = [ "gbar", coreOrigin(p),
+      !p.start ? "open-start":"", (p.status==="fading") ? "fade-end":"" ].join(" ");
+    const label = p.deadlineLabel;
+    return `<div class="${cls}" style="left:${pct(s)};width:${pct(e-s).replace("%","")}%">
+      <span class="fill"></span><span class="blabel">${esc(label)}</span></div>`;
+  }
+  function renderGantt(){
+    const grid = `<div class="ggrid">${"<i></i>".repeat(N_MONTHS)}</div>`;
+    const months = `<div class="gmonths"><div class="gname"></div>${
+      Array.from({length:N_MONTHS},(_,i)=>`<div class="gcell">${monthName(i)}</div>`).join("")}</div>`;
+    const today = `<span class="today" style="left:${pct(dX(TODAY))}"></span>`;
 
-      DATA.head.wx = HPAD + contentW + HEAD_GAP;
-      DATA.head.wy = spineY;
+    const rows = DATA.map(p=>`
+      <div class="grow" data-slide="${p.id}" role="button" tabindex="0" title="Open slide: ${esc(p.name)}">
+        <div class="gname">
+          <span class="nm"><i class="odot ${coreOrigin(p)}"></i>${esc(p.name)}</span>
+          <span class="meta"><span class="statuschip">${STATUS[p.status]}</span>${
+            unknownCount(p) ? `<span class="badge-unk">${unknownCount(p)} unknown</span>` : ""}</span>
+        </div>
+        <div class="gtrack">${grid}${today}${ganttBar(p)}${ganttMarkers(p.markers)}</div>
+      </div>`).join("");
 
-      return { worldW, worldH, spineY, contentW };
-    }
+    const lanes = LANES.map(l=>{
+      const segs = l.segs.map(sg=>{
+        const a = sg.from ? dX(sg.from) : 0;
+        const b = sg.to   ? dX(sg.to)   : N_MONTHS;
+        return `<span class="lseg ${sg.o}" style="left:${pct(a)};width:${(b-a)/N_MONTHS*100}%"></span>`;
+      }).join("");
+      return `<div class="grow lane">
+        <div class="gname"><span class="nm">${esc(l.name)}</span>${
+          l.note?`<span class="lnote">${esc(l.note)}</span>`:""}</div>
+        <div class="gtrack">${grid}${today}${segs}${ganttMarkers(l.markers)}</div>
+      </div>`;
+    }).join("");
 
-    // ---- node element factory ----
-    function makeEl(n){
-      const div = document.createElement('div');
-      div.className = 'node s-' + n.status + (n.children ? ' expandable':'');
-      if(n.date){
-        div.classList.add('ms');
-        div.innerHTML =
-          `<div class="date">${n.date}${n.factory?` <span class="fac">${n.factory}</span>`:''}<span class="status-dot"></span></div>`+
-          `<div class="label">${n.label}</div>`+
-          (n.children?`<div class="exp"><span class="sign"></span> ${n.children.length}</div>`:'');
+    document.getElementById("view-gantt").innerHTML = `
+      <div class="gwrap">
+        <h1 class="gtitle">Product schedule</h1>
+        <p class="gsub">Every SKU from the spec sheet on one timeline. Red bars run on imported Chinese boards and keep revenue flowing; green bars are built on NDIPL electronics. Click a row for its full spec slide.</p>
+        <div class="gscroll"><div class="gantt">${months}${rows}</div></div>
+        <h2 class="lanes-h">Subsystem localization</h2>
+        <p class="lanes-sub">When each subsystem switches from imported to in-house. The handshake: imported SKUs sell while the green line moves right.</p>
+        <div class="gscroll"><div class="gantt">${months}${lanes}</div></div>
+      </div>`;
+
+    document.querySelectorAll(".grow[data-slide]").forEach(r=>{
+      r.addEventListener("click",()=>{ openSlideFor(r.dataset.slide); });
+      r.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); openSlideFor(r.dataset.slide); }});
+    });
+  }
+
+  /* ---------------- FISHBONE ---------------- */
+  const SUBSYS = [ ["fc","Flight controller"], ["wifi","Wifi board"], ["of","Optical flow"], ["battery","Battery"], ["frame","Frame"] ];
+  function fbTree(){
+    return DATA.map(p=>({
+      id:p.id, label:p.name, date:p.deadlineLabel, product:p,
+      children: SUBSYS.map(([k,label])=>({
+        id:p.id+"."+k, label, factory:p[k].f,
+        children: Object.entries(p[k].s).map(([sk,sv])=>({
+          id:p.id+"."+k+"."+sk, label:sk, value:sv }))
+      }))
+    }));
+  }
+  const FB = { nodes: fbTree(), expanded: new Set(), els: new Map() };
+  const LEAF_W = 216, GAPX = 36, LV = 118, HPAD = 70, VPAD = 60;
+
+  function fbLayoutNode(n, side, depth, x0){
+    n.side = side; n.depth = depth;
+    const kids = (FB.expanded.has(n.id) && n.children) ? n.children : [];
+    if(!kids.length){ n.x = x0 + LEAF_W/2; return LEAF_W; }
+    let c = x0, first=null, last=null;
+    kids.forEach(k=>{ const w = fbLayoutNode(k, side, depth+1, c); c += w; if(first===null) first=k.x; last=k.x; });
+    n.x = (first+last)/2;
+    return c - x0;
+  }
+  function fbVisible(n, parent){ return !parent || FB.expanded.has(parent.id); }
+
+  function fbRender(animateFrom){
+    const stage = document.getElementById("fbstage");
+    const svg = document.getElementById("fbsvg");
+    let cursor = 0;
+    FB.nodes.forEach((m,i)=>{
+      m.sideSign = (i%2===0) ? -1 : 1;
+      const w = fbLayoutNode(m, m.sideSign, 1, cursor);
+      cursor += Math.max(w, LEAF_W) + GAPX;
+    });
+    const contentW = Math.max(cursor - GAPX, LEAF_W);
+    let topD=1, botD=1;
+    const scan = (n)=>{ if(n.sideSign<0 || n.side<0) topD=Math.max(topD,n.depth); else botD=Math.max(botD,n.depth);
+      if(FB.expanded.has(n.id) && n.children) n.children.forEach(scan); };
+    FB.nodes.forEach(scan);
+    const spineY = topD*LV + VPAD + 40;
+    const worldW = HPAD*2 + contentW, worldH = spineY + botD*LV + VPAD + 40;
+    stage.style.width = worldW+"px"; stage.style.height = worldH+"px";
+    svg.setAttribute("width", worldW); svg.setAttribute("height", worldH);
+
+    let paths = [`<line x1="${HPAD-30}" y1="${spineY}" x2="${worldW-HPAD+30}" y2="${spineY}" stroke="var(--hairline-strong)" stroke-width="1.5"/>`];
+    const seen = new Set();
+
+    function place(n, parent){
+      if(parent && !FB.expanded.has(parent.id)){ if(FB.els.has(n.id)){FB.els.get(n.id).remove(); FB.els.delete(n.id);}
+        if(n.children) n.children.forEach(c=>place(c,n)); return; }
+      const wx = HPAD + n.x;
+      const wy = parent ? (spineY + n.side * n.depth * LV) : (spineY + n.sideSign * LV);
+      n.side = parent ? n.side : n.sideSign;
+      seen.add(n.id);
+      let el = FB.els.get(n.id);
+      if(!el){
+        el = document.createElement("div");
+        el.className = "fnode" + (n.product ? " product":"") + (n.children ? " expandable":"");
+        if(n.product){
+          const p = n.product;
+          el.innerHTML = `<div class="fdate"><i class="odot ${coreOrigin(p)}"></i>${esc(n.date)}</div>
+            <div class="flabel">${esc(n.label)}</div>
+            <div style="margin-top:5px;display:flex;gap:5px;flex-wrap:wrap">
+              <span class="statuschip">${STATUS[p.status]}</span>${
+              unknownCount(p)?`<span class="badge-unk">${unknownCount(p)} unknown</span>`:""}</div>
+            <span class="fexp"><span class="sg"></span> ${n.children.length}</span>`;
+        } else if(n.children){
+          el.innerHTML = `<div class="flabel">${esc(n.label)}</div>
+            <div style="margin-top:5px">${fchip(n.factory)}</div>
+            <span class="fexp"><span class="sg"></span> ${n.children.length}</span>`;
+        } else {
+          el.innerHTML = `<div class="flabel" style="font-weight:500;font-size:12px">${esc(n.label)}</div>
+            <div class="fvalue">${specVal(n.value)}</div>`;
+        }
+        if(n.children){
+          el.setAttribute("role","button"); el.setAttribute("tabindex","0");
+          el.setAttribute("aria-expanded", String(FB.expanded.has(n.id)));
+          el.addEventListener("click", e=>{ e.stopPropagation(); fbToggle(n); });
+          el.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); fbToggle(n); }});
+        }
+        stage.appendChild(el);
+        FB.els.set(n.id, el);
+        el._tx = wx; el._ty = wy;
+        const fx = animateFrom && animateFrom.has(n.id) ? animateFrom.get(n.id) : {x:wx, y:wy};
+        el.style.transform = `translate(${fx.x - el.offsetWidth/2}px, ${fx.y - el.offsetHeight/2}px)`;
+        el.style.opacity = "0";
+        /* read el._tx at frame time: a re-render in the same frame may have
+           moved the target, and this callback must not restore stale coords */
+        requestAnimationFrame(()=>{ el.style.opacity="1";
+          el.style.transform = `translate(${el._tx - el.offsetWidth/2}px, ${el._ty - el.offsetHeight/2}px)`; });
       } else {
-        div.innerHTML =
-          `<div class="label">${n.label}</div>`+
-          (n.detail?`<div class="detail">${n.detail}</div>`:'')+
-          (n.children?`<div class="exp"><span class="sign"></span> ${n.children.length}</div>`:'');
+        el.classList.toggle("open", FB.expanded.has(n.id));
+        if(n.children) el.setAttribute("aria-expanded", String(FB.expanded.has(n.id)));
+        el._tx = wx; el._ty = wy;
+        el.style.transform = `translate(${wx - el.offsetWidth/2}px, ${wy - el.offsetHeight/2}px)`;
+        el.style.opacity = "1";
       }
-      if(n.children){
-        div.addEventListener('click', e=>{ e.stopPropagation(); toggle(n); });
+      n.wx = wx; n.wy = wy;
+      if(parent){
+        paths.push(`<path d="M ${parent.wx} ${parent.wy} C ${parent.wx} ${(parent.wy+wy)/2}, ${wx} ${(parent.wy+wy)/2}, ${wx} ${wy}" fill="none" stroke="var(--hairline-strong)" stroke-width="1"/>`);
+      } else {
+        paths.push(`<line x1="${wx}" y1="${spineY}" x2="${wx}" y2="${wy}" stroke="var(--hairline-strong)" stroke-width="1"/>`);
+        paths.push(`<circle cx="${wx}" cy="${spineY}" r="3" fill="var(--hairline-strong)"/>`);
       }
-      return div;
+      if(n.children) n.children.forEach(c=>{ c.side = n.side; place(c, n); });
     }
+    FB.nodes.forEach(m=>place(m, null));
+    for(const [id,el] of FB.els){ if(!seen.has(id)){ el.remove(); FB.els.delete(id); } }
+    svg.innerHTML = paths.join("");
+  }
+  function fbToggle(n){
+    const from = new Map();
+    if(!FB.expanded.has(n.id) && n.children){
+      n.children.forEach(c=>from.set(c.id,{x:HPAD+n.x, y:n.wy}));
+      FB.expanded.add(n.id);
+    } else FB.expanded.delete(n.id);
+    fbRender(from);
+  }
+  function fbAll(open){
+    FB.expanded.clear();
+    /* expand to subsystem level only; individual specs stay click-to-open,
+       a full spec expansion would be ~50k px wide and unreadable */
+    if(open) FB.nodes.forEach(n=>FB.expanded.add(n.id));
+    fbRender();
+  }
+  document.getElementById("fb-expand").addEventListener("click", ()=>fbAll(true));
+  document.getElementById("fb-collapse").addEventListener("click", ()=>fbAll(false));
 
-    function makeHead(){
-      const div = document.createElement('div');
-      div.className = 'node head';
-      div.innerHTML = `<div class="k">${DATA.head.k}</div><div class="label">${DATA.head.label}</div>`;
-      return div;
-    }
+  (function pan(){
+    const vp = document.getElementById("fbviewport");
+    let down=false, sx=0, sy=0, sl=0, st=0;
+    vp.addEventListener("pointerdown", e=>{ if(e.target.closest(".fnode")) return;
+      down=true; sx=e.clientX; sy=e.clientY; sl=vp.scrollLeft; st=vp.scrollTop;
+      vp.classList.add("grabbing"); vp.setPointerCapture(e.pointerId); });
+    vp.addEventListener("pointermove", e=>{ if(!down) return;
+      vp.scrollLeft = sl-(e.clientX-sx); vp.scrollTop = st-(e.clientY-sy); });
+    ["pointerup","pointercancel"].forEach(ev=>vp.addEventListener(ev, ()=>{ down=false; vp.classList.remove("grabbing"); }));
+  })();
 
-    function setPos(el, wx, wy, opacity){
-      el.style.transform = `translate(${wx}px, ${wy}px) translate(-50%, -50%)`;
-      if(opacity!==undefined) el.style.opacity = opacity;
-    }
+  /* ---------------- SLIDES ---------------- */
+  function productSlide(p){
+    const cards = SUBSYS.map(([k,label])=>{
+      const o = originOf(p[k].f)==="in" ? "inh" : "imp";
+      const rows = Object.entries(p[k].s)
+        .map(([sk,sv])=>`<dt>${esc(sk)}</dt><dd>${specVal(sv)}</dd>`).join("");
+      return `<div class="card ${o}-card"><div class="chead"><b>${label}</b>${fchip(p[k].f)}</div><dl>${rows}</dl></div>`;
+    }).join("");
+    return `<div class="slide">
+      <div class="s-status"><span class="statuschip">${STATUS[p.status]}</span>${
+        unknownCount(p)?`<span class="badge-unk">${unknownCount(p)} unknown specs</span>`:""}
+        <span class="fchip ${coreOrigin(p)}">${coreOrigin(p)==="inh"?"in-house core":"imported core"}</span></div>
+      <h1>${esc(p.name)}</h1>
+      <p class="s-dates">${p.start? esc(fmtDate(p.start))+" &rarr; " : "in market &rarr; "}${p.end? esc(fmtDate(p.end)) : "ongoing"}</p>
+      ${p.note?`<p class="s-note">${esc(p.note)}</p>`:""}
+      <div class="subsys">${cards}</div>
+    </div>`;
+  }
+  function fmtDate(s){ const p=s.split("-");
+    const d=new Date(Number(p[0]), Number(p[1])-1, Number(p[2]||1));
+    return (p[2]? d.getDate()+" ":"") + d.toLocaleString("en",{month:"short"}) + " " + d.getFullYear(); }
 
-    // ---- render ----
-    let animTimer = null;
-    function render(animate=true){
-      const dim = layout();
-      stage.style.width = dim.worldW + 'px';
-      stage.style.height = dim.worldH + 'px';
-      bones.setAttribute('width', dim.worldW);
-      bones.setAttribute('height', dim.worldH);
-      bones.setAttribute('viewBox', `0 0 ${dim.worldW} ${dim.worldH}`);
+  function titleSlide(){
+    return `<div class="slide tslide">
+      <h1>From imported to in-house</h1>
+      <p class="story">Twelve SKUs, one plan. Chinese factory builds (LG, Yongyu, LW, BJ, RJ) keep revenue flowing today, while NDIPL electronics come online underneath them: ESP32 flight control ships this month in DIY Nabhyan, LoRa long range lands in December with DIY ORO, and the production-grade STM32 stack proves out in the Army single axis by March 2027. Each slide is one SKU from the spec sheet; amber marks what we still need to find out.</p>
+      <div class="big-legend">
+        <span class="li"><i class="ldot imp"></i>Imported (Chinese factory)</span>
+        <span class="li"><i class="ldot inh"></i>In-house (NDIPL)</span>
+        <span class="li"><i class="ldot unk"></i>Unknown, to be confirmed</span>
+      </div></div>`;
+  }
+  function summarySlide(){
+    const rows = LANES.map(l=>{
+      const finalO = l.segs[l.segs.length-1].o;
+      const when = finalO==="inh"
+        ? (l.segs.length>1 ? "in-house from " + fmtDate(l.segs[l.segs.length-1].from) : "in-house from day one")
+        : "imported, no date yet";
+      return `<div class="sumrow"><b>${esc(l.name)}</b>
+        <span class="st ${finalO}">${esc(when)}</span>
+        ${l.note?`<span class="why">${esc(l.note)}</span>`:""}</div>`;
+    }).join("");
+    return `<div class="slide"><h1>Localization scorecard</h1>
+      <p class="s-note">Where each subsystem stands on the path in-house.</p>
+      <div class="sumgrid">${rows}</div></div>`;
+  }
 
-      // gather visible nodes
-      const vis = [];
-      const gather = n => { if(!isVisible(n)) return; vis.push(n); if(n.children) n.children.forEach(gather); };
-      DATA.milestones.forEach(gather);
+  const SLIDES = [ {id:"_title", html:titleSlide()},
+    ...DATA.map(p=>({id:p.id, html:productSlide(p)})),
+    {id:"_summary", html:summarySlide()} ];
+  let slideIdx = 0;
+  function showSlide(i){
+    slideIdx = Math.max(0, Math.min(SLIDES.length-1, i));
+    document.getElementById("deck").innerHTML = SLIDES[slideIdx].html;
+    document.getElementById("s-count").textContent = (slideIdx+1) + " / " + SLIDES.length;
+    if(document.body.dataset.view==="slides") syncURL();
+  }
+  function openSlideFor(id){
+    const i = SLIDES.findIndex(s=>s.id===id);
+    setView("slides"); showSlide(i<0?0:i);
+  }
+  document.getElementById("s-prev").addEventListener("click", ()=>showSlide(slideIdx-1));
+  document.getElementById("s-next").addEventListener("click", ()=>showSlide(slideIdx+1));
+  document.addEventListener("keydown", e=>{
+    if(document.body.dataset.view!=="slides") return;
+    if(e.key==="ArrowRight"||e.key==="PageDown") showSlide(slideIdx+1);
+    if(e.key==="ArrowLeft"||e.key==="PageUp") showSlide(slideIdx-1);
+  });
 
-      const visIds = new Set(vis.map(n=>n.id));
+  /* ---------------- view switching ---------------- */
+  function setView(v){
+    document.body.dataset.view = v;
+    document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected", String(b.dataset.v===v)));
+    if(v==="fishbone" && !FB.els.size) fbRender();
+    syncURL();
+  }
+  function syncURL(){
+    const u = new URL(location.href);
+    u.searchParams.set("view", document.body.dataset.view);
+    if(document.body.dataset.view==="slides" && SLIDES[slideIdx].id[0] !== "_")
+      u.searchParams.set("sku", SLIDES[slideIdx].id);
+    else u.searchParams.delete("sku");
+    history.replaceState(null, "", u);
+  }
+  document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click", ()=>setView(b.dataset.v)));
 
-      // head element
-      if(!els.has('__head__')){ const h = makeHead(); els.set('__head__', h); stage.appendChild(h);
-        setPos(h, DATA.head.wx, DATA.head.wy, 0); h.offsetWidth; }
-      setPos(els.get('__head__'), DATA.head.wx, DATA.head.wy, 1);
+  renderGantt();
+  showSlide(0);
 
-      // create / update nodes
-      vis.forEach(n=>{
-        let el = els.get(n.id);
-        if(!el){
-          el = makeEl(n); els.set(n.id, el); stage.appendChild(el);
-          // emerge from parent's current position
-          const origin = n.parent ? n.parent : {wx:n.wx, wy:dim.spineY};
-          setPos(el, origin.wx, origin.wy, 0);
-          el.offsetWidth; // reflow so the transition runs
-        }
-        el.classList.toggle('open', expanded.has(n.id));
-        setPos(el, n.wx, n.wy, 1);
-      });
-
-      // remove nodes no longer visible (animate back toward parent)
-      prevVisible.forEach(id=>{
-        if(!visIds.has(id) && els.has(id)){
-          const el = els.get(id);
-          const n = findById(id);
-          const origin = n && n.parent ? n.parent : {wx:dim.spineY, wy:dim.spineY};
-          setPos(el, origin.wx || n.wx, origin.wy || n.wy, 0);
-          setTimeout(()=>{ el.remove(); }, 380);
-          els.delete(id);
-        }
-      });
-      prevVisible = visIds;
-
-      // animate the bones alongside the node transition
-      if(animTimer) cancelAnimationFrame(animTimer);
-      const t0 = performance.now();
-      const tick = ()=>{ drawBones(dim); if(performance.now()-t0 < 460) animTimer = requestAnimationFrame(tick); else drawBones(dim); };
-      tick();
-    }
-
-    function findById(id){
-      let found = null;
-      const visit = n => { if(n.id===id) found = n; else if(n.children) n.children.forEach(visit); };
-      DATA.milestones.forEach(visit);
-      return found;
-    }
-
-    // ---- draw the spine + bones from live element positions ----
-    function drawBones(dim){
-      const sb = stage.getBoundingClientRect();
-      const sc = viewport.__scale || 1;
-      const center = el => { const r = el.getBoundingClientRect();
-        return { x:(r.left + r.width/2 - sb.left)/sc, y:(r.top + r.height/2 - sb.top)/sc }; };
-
-      let svg = `<line x1="${HPAD-30}" y1="${dim.spineY}" x2="${DATA.head.wx}" y2="${dim.spineY}" stroke="var(--spine)" stroke-width="3" stroke-linecap="round"/>`;
-      // tail marker + time direction
-      svg += `<circle cx="${HPAD-30}" cy="${dim.spineY}" r="4" fill="var(--spine)"/>`;
-      svg += `<text x="${HPAD-30}" y="${dim.spineY-14}" font-family="var(--mono)" font-size="11" fill="#98a1b0">TIME →</text>`;
-
-      const line = (a,b,color,w)=>`<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${color}" stroke-width="${w}" stroke-linecap="round"/>`;
-
-      const drawFor = n => {
-        if(!isVisible(n)) return;
-        const el = els.get(n.id); if(!el) return;
-        const cN = center(el);
-        if(!n.parent){
-          // milestone bone: from spine attach point up/down to the node
-          const attach = { x:cN.x, y:dim.spineY };
-          svg += line(attach, cN, 'var(--line-2)', 2.5);
-          svg += `<circle cx="${cN.x}" cy="${dim.spineY}" r="3.5" fill="var(--spine)"/>`;
-        }
-        if(n.children && expanded.has(n.id)){
-          n.children.forEach(k=>{ if(!isVisible(k)) return; const el2 = els.get(k.id); if(!el2) return;
-            svg += line(cN, center(el2), 'var(--line-2)', 2); });
-        }
-        if(n.children) n.children.forEach(drawFor);
-      };
-      DATA.milestones.forEach(drawFor);
-
-      // spine into the head
-      const headEl = els.get('__head__');
-      if(headEl){ /* head sits on spine end; short connector already covered by spine */ }
-      bones.innerHTML = svg;
-    }
-
-    function toggle(n){
-      if(expanded.has(n.id)) collapseRec(n); else expanded.add(n.id);
-      render();
-    }
-    function collapseRec(n){
-      expanded.delete(n.id);
-      if(n.children) n.children.forEach(collapseRec);
-    }
-
-    // ---- controls ----
-    document.getElementById('expandAll').onclick = ()=>{
-      const all = n => { if(n.children){ expanded.add(n.id); n.children.forEach(all); } };
-      DATA.milestones.forEach(all); render();
-    };
-    document.getElementById('collapseAll').onclick = ()=>{ expanded.clear(); render(); fitView(); };
-    document.getElementById('fit').onclick = ()=> fitView();
-
-    // ---- pan by drag ----
-    (function(){
-      let down=false,sx,sy,l,t;
-      viewport.addEventListener('mousedown',e=>{ if(e.target.closest('.node')) return; down=true; viewport.classList.add('grabbing'); sx=e.clientX; sy=e.clientY; l=viewport.scrollLeft; t=viewport.scrollTop; });
-      window.addEventListener('mousemove',e=>{ if(!down) return; viewport.scrollLeft=l-(e.clientX-sx); viewport.scrollTop=t-(e.clientY-sy); });
-      window.addEventListener('mouseup',()=>{ down=false; viewport.classList.remove('grabbing'); });
-    })();
-
-    function fitView(){
-      // center the spine vertically and scroll to the start
-      viewport.scrollTop = Math.max(0, (stage.offsetHeight - viewport.clientHeight)/2);
-      viewport.scrollLeft = 0;
-    }
-
-    window.addEventListener('resize', ()=>drawBones(layout()));
-
-    // ---- init: collapsed, but pre-open the ORO 3-axis milestone one level ----
-    expanded.add('m2');
-    render();
-    requestAnimationFrame(()=>{ fitView(); setTimeout(()=>drawBones(layout()), 60); });
+  /* deep links: ?view=gantt|fishbone|slides[&sku=<id>][&expand=1] */
+  const q = new URLSearchParams(location.search);
+  const qv = q.get("view");
+  if(qv==="fishbone"){ setView("fishbone"); if(q.get("expand")) fbAll(true); }
+  else if(qv==="slides"){ q.get("sku") ? openSlideFor(q.get("sku")) : setView("slides"); }
   </script>
 </body>
 </html>
