@@ -107,6 +107,11 @@
       color:var(--body);border:1px solid var(--hairline);background:var(--canvas);
       border-radius:var(--r-sm);padding:2px 7px;white-space:nowrap;
     }
+    .tagchip{
+      display:inline-flex;font:500 10.5px/14px var(--mono);letter-spacing:.06em;text-transform:uppercase;
+      color:var(--canvas);background:var(--ink);border-radius:var(--r-sm);padding:2px 7px;white-space:nowrap;
+    }
+    .gnote{position:absolute;left:12px;top:50%;transform:translateY(-50%);font:400 11px/14px var(--mono);color:var(--mute)}
 
     /* ============ GANTT ============ */
     #view-gantt{overflow-y:auto;padding:24px}
@@ -334,9 +339,10 @@
 
   const DATA = [
     {
-      id:"nabhyan-lg", name:"Nabhyan LG", status:"shipping",
-      start:null, end:null, deadlineLabel:"ongoing",
-      note:"Current non-GPS product, built end to end by LG. Continues while GPS SKUs take over.",
+      id:"nabhyan-lg", name:"Nabhyan LG", status:"discontinued",
+      start:null, end:null, deadlineLabel:"stopped Aug 2025",
+      rangeText:"Mar 2025 - Aug 2025, discontinued",
+      note:"First non-GPS product, built end to end by LG. Ran March to August 2025 and is discontinued; the GPS SKUs took over.",
       fc:{f:"LG", s:{ MCU:"Panchip PAN2025D", Barometer:"SPL06-001", IMU:"Unknown", GPS:"NA", Compass:"NA", Wireless:"separate IC", Range:"200 m" }},
       wifi:{f:"LG", s:{ MPU:"Unknown", DDR:"NA", Camera:"1080p", Thermal:"NA", "Optical flow support":"Yes", "Wifi IC":"Unknown", Range:"200 m", "SD card":"NA" }},
       of:{f:"LG", s:{ Camera:"Unknown", Board:"Integrated with Wifi", Interface:"UART", Protocol:"Custom - available" }},
@@ -388,7 +394,7 @@
     {
       id:"oro4k-ws", name:"ORO 4k With Screen", status:"fading",
       start:null, end:"2026-12", deadlineLabel:"fades Dec 2026",
-      note:"Selling today from BJ; will be fully replaced by the RJ 3-Axis line by December 2026.",
+      note:"In market since March 2025, selling from BJ; ends now that the RJ 3-Axis line starts, fully replaced by December 2026.",
       fc:{f:"BJ", s:{ MCU:"Unknown", Barometer:"Unknown", IMU:"Unknown", GPS:"Unknown", Compass:"Unknown", Wireless:"Unknown", Range:"Unknown" }},
       wifi:{f:"BJ", s:{ MPU:"Unknown", DDR:"Unknown", Camera:"Unknown", Thermal:"NA", "Optical flow support":"Unknown", "Wifi IC":"Unknown", Range:"3 km", "SD card":"Available" }},
       of:{f:"BJ", s:{ Camera:"Unknown", Board:"Integrated with Wifi", Interface:"Unknown", Protocol:"Unknown" }},
@@ -398,7 +404,7 @@
     {
       id:"oro4k-wos", name:"ORO 4k Without Screen", status:"fading",
       start:null, end:"2026-12", deadlineLabel:"fades Dec 2026",
-      note:"Same fade-out as the with-screen version. Video goes to a phone app over general WiFi, so range is lower than the screen version.",
+      note:"In market since March 2025; same fade-out as the with-screen version. Video goes to a phone app over general WiFi, so range is lower than the screen version.",
       fc:{f:"BJ", s:{ MCU:"Unknown", Barometer:"Unknown", IMU:"Unknown", GPS:"Unknown", Compass:"Unknown", Wireless:"Unknown", Range:"Unknown" }},
       wifi:{f:"BJ", s:{ MPU:"Unknown", DDR:"Unknown", Camera:"Unknown", Thermal:"NA", "Optical flow support":"Unknown", "Wifi IC":"Unknown", Range:"3 km", "SD card":"Available" }},
       of:{f:"BJ", s:{ Camera:"Unknown", Board:"Integrated with Wifi", Interface:"Unknown", Protocol:"Unknown" }},
@@ -429,8 +435,8 @@
     },
     {
       id:"single-ws", name:"Single Axis With Screen", status:"upcoming",
-      start:"2026-12", end:"2027-02", deadlineLabel:"Feb 2027",
-      note:"Yongyu flight controller with LW wifi board and a separate optical-flow board. With-screen needs a new display board with a DSI cable, a separate development track, and gives longer video range.",
+      start:"2027-01", end:"2027-03", deadlineLabel:"Mar 2027",
+      note:"Launches early 2027, once 3-Axis sales are stable. Yongyu flight controller with LW wifi board and a separate optical-flow board. With-screen needs a new display board with a DSI cable, a separate development track, and gives longer video range.",
       fc:{f:"Yongyu", s:{ MCU:"Unknown", Barometer:"Unknown", IMU:"Unknown", GPS:"Unknown", Compass:"Unknown", Wireless:"Unknown", Range:"Unknown" }},
       wifi:{f:"LW", s:{ MPU:"Unknown", DDR:"Unknown", Camera:"Unknown", Thermal:"NA", "Optical flow support":"Unknown", "Wifi IC":"Unknown", Range:"3 km", "SD card":"Available" }},
       of:{f:"LW", s:{ Camera:"Unknown", Board:"Separate", Interface:"Unknown", Protocol:"Unknown" }},
@@ -439,8 +445,8 @@
     },
     {
       id:"single-wos", name:"Single Axis Without Screen", status:"upcoming",
-      start:"2026-12", end:"2027-02", deadlineLabel:"Feb 2027",
-      note:"Launches with the with-screen version. Phone-app video over general WiFi via the LW camera SDK; lower range than the screen version.",
+      start:"2027-01", end:"2027-03", deadlineLabel:"Mar 2027",
+      note:"Launches early 2027 with the with-screen version, once 3-Axis sales are stable. Phone-app video over general WiFi via the LW camera SDK; lower range than the screen version.",
       fc:{f:"Yongyu", s:{ MCU:"Unknown", Barometer:"Unknown", IMU:"Unknown", GPS:"Unknown", Compass:"Unknown", Wireless:"Unknown", Range:"Unknown" }},
       wifi:{f:"LW", s:{ MPU:"Unknown", DDR:"Unknown", Camera:"Unknown", Thermal:"NA", "Optical flow support":"Unknown", "Wifi IC":"Unknown", Range:"3 km", "SD card":"Available" }},
       of:{f:"LW", s:{ Camera:"Unknown", Board:"Separate", Interface:"Unknown", Protocol:"Unknown" }},
@@ -448,9 +454,10 @@
       frame:{f:"NDIPL", s:{ Material:"MJ Plastic" }}
     },
     {
-      id:"army-single", name:"Army Single Axis", status:"dev",
+      id:"army-single", name:"Army Single Axis", status:"dev", tags:["Thermal camera"],
       start:"2026-11", end:"2027-03", deadlineLabel:"Mar 2027",
-      note:"Defence configuration, without screen. In-house STM32F722 flight controller and RV1103 wifi board with Anna thermal camera and Realtec wifi IC; LoRa 3 km link; RJ separate optical flow. The proof that the in-house stack reaches production grade.",
+      markers:[ {d:"2027-02", label:"sample sales begin", tone:"inh"} ],
+      note:"Internal R&D defence configuration, without screen, carrying the Anna thermal camera as its headline payload. In-house STM32F722 flight controller and RV1103 wifi board with Realtec wifi IC; LoRa 3 km link; RJ separate optical flow. Sample sales start around February 2027; the proof that the in-house stack reaches production grade.",
       fc:{f:"NDIPL", s:{ MCU:"STM32F722", Barometer:"SPL06-001", IMU:"ICM42605", GPS:"BN-880", Compass:"BN-880", Wireless:"LoRa", Range:"3 km" }},
       wifi:{f:"NDIPL", s:{ MPU:"RV1103", DDR:"NA", Camera:"1080p", Thermal:"Anna", "Optical flow support":"NA", "Wifi IC":"Realtec", Range:"3 km", "SD card":"Available" }},
       of:{f:"RJ", s:{ Camera:"Unknown", Board:"Separate", Interface:"UART", Protocol:"Custom - available" }},
@@ -485,7 +492,8 @@
   ];
 
   /* ============================ ENGINE ============================ */
-  const STATUS = { shipping:"Shipping", testing:"Testing", dev:"In development", upcoming:"Upcoming", fading:"Phasing out" };
+  const STATUS = { shipping:"Shipping", testing:"Testing", dev:"In development", upcoming:"Upcoming", fading:"Phasing out", discontinued:"Discontinued" };
+  const tagchips = p => (p.tags||[]).map(t=>`<span class="tagchip">${esc(t)}</span>`).join("");
 
   const mIdx = s => { const [y,m] = s.split("-").map(Number); return (y-2026)*12 + (m-5); };
   const N_MONTHS = mIdx(TL.last) + 1;
@@ -517,6 +525,8 @@
     }).join("");
   }
   function ganttBar(p){
+    if(p.status==="discontinued")
+      return `<span class="gnote">${esc(p.rangeText||p.deadlineLabel)}</span>`;
     const s = p.start ? dX(p.start) : 0;
     const e = p.end   ? dX(p.end)+ (p.end.length===7 ? 1 : 0) : N_MONTHS;  // month end = start of next
     const cls = [ "gbar", coreOrigin(p),
@@ -535,7 +545,7 @@
       <div class="grow" data-slide="${p.id}" role="button" tabindex="0" title="Open slide: ${esc(p.name)}">
         <div class="gname">
           <span class="nm"><i class="odot ${coreOrigin(p)}"></i>${esc(p.name)}</span>
-          <span class="meta"><span class="statuschip">${STATUS[p.status]}</span>${
+          <span class="meta"><span class="statuschip">${STATUS[p.status]}</span>${tagchips(p)}${
             unknownCount(p) ? `<span class="badge-unk">${unknownCount(p)} unknown</span>` : ""}</span>
         </div>
         <div class="gtrack">${grid}${today}${ganttBar(p)}${ganttMarkers(p.markers)}</div>
@@ -634,7 +644,7 @@
           el.innerHTML = `<div class="fdate"><i class="odot ${coreOrigin(p)}"></i>${esc(n.date)}</div>
             <div class="flabel">${esc(n.label)}</div>
             <div style="margin-top:5px;display:flex;gap:5px;flex-wrap:wrap">
-              <span class="statuschip">${STATUS[p.status]}</span>${
+              <span class="statuschip">${STATUS[p.status]}</span>${tagchips(p)}${
               unknownCount(p)?`<span class="badge-unk">${unknownCount(p)} unknown</span>`:""}</div>
             <span class="fexp"><span class="sg"></span> ${n.children.length}</span>`;
         } else if(n.children){
@@ -719,11 +729,12 @@
       return `<div class="card ${o}-card"><div class="chead"><b>${label}</b>${fchip(p[k].f)}</div><dl>${rows}</dl></div>`;
     }).join("");
     return `<div class="slide">
-      <div class="s-status"><span class="statuschip">${STATUS[p.status]}</span>${
+      <div class="s-status"><span class="statuschip">${STATUS[p.status]}</span>${tagchips(p)}${
         unknownCount(p)?`<span class="badge-unk">${unknownCount(p)} unknown specs</span>`:""}
         <span class="fchip ${coreOrigin(p)}">${coreOrigin(p)==="inh"?"in-house core":"imported core"}</span></div>
       <h1>${esc(p.name)}</h1>
-      <p class="s-dates">${p.start? esc(fmtDate(p.start))+" &rarr; " : "in market &rarr; "}${p.end? esc(fmtDate(p.end)) : "ongoing"}</p>
+      <p class="s-dates">${p.rangeText ? esc(p.rangeText) :
+        (p.start? esc(fmtDate(p.start))+" &rarr; " : "in market &rarr; ") + (p.end? esc(fmtDate(p.end)) : "ongoing")}</p>
       ${p.note?`<p class="s-note">${esc(p.note)}</p>`:""}
       <div class="subsys">${cards}</div>
     </div>`;
@@ -735,7 +746,7 @@
   function titleSlide(){
     return `<div class="slide tslide">
       <h1>From imported to in-house</h1>
-      <p class="story">Twelve SKUs, one plan. Chinese factory builds (LG, Yongyu, LW, BJ, RJ) keep revenue flowing today, while NDIPL electronics come online underneath them: ESP32 flight control ships this month in DIY Nabhyan, LoRa long range lands in December with DIY ORO, and the production-grade STM32 stack proves out in the Army single axis by March 2027. Each slide is one SKU from the spec sheet; amber marks what we still need to find out.</p>
+      <p class="story">Twelve SKUs, one plan. Chinese factory builds (Yongyu, LW, BJ, RJ) keep revenue flowing today, while NDIPL electronics come online underneath them: ESP32 flight control launches now in DIY Nabhyan, LoRa long range lands in December with DIY ORO, and the production-grade STM32 stack with the Anna thermal camera proves out in the Army single axis, selling samples from February 2027. Each slide is one SKU from the spec sheet; amber marks what we still need to find out.</p>
       <div class="big-legend">
         <span class="li"><i class="ldot imp"></i>Imported (Chinese factory)</span>
         <span class="li"><i class="ldot inh"></i>In-house (NDIPL)</span>
